@@ -5,6 +5,8 @@ import { FC, memo, useCallback, useState } from 'react';
 
 import { TextInput } from '~/components/forms/TextInput';
 import { useAnalytics } from '~/contexts/AnalyticsProvider';
+import { isEmailValid } from '~/utils/emailUtils';
+
 type LoginMagicLinkWithInstructionsProps = {
   onClose: () => void;
 };
@@ -20,20 +22,31 @@ const LoginMagicLinkWithInstructions: FC<LoginMagicLinkWithInstructionsProps> =
     const [attemptingLogin, setAttemptingLogin] = useState<boolean>(false);
 
     const login = useCallback(async () => {
+      const normalizedEmail = email.trim();
+      if (!isEmailValid(normalizedEmail)) {
+        setSuccess(false);
+        setError('Enter a valid email address');
+        return;
+      }
+
       try {
         setAttemptingLogin(true);
+        setSuccess(false);
         setError(undefined);
         trackEvent(AnalyticsEvent.ClickedSendMagicLink, {});
         await apiClient.initiateMagicLink({
-          email,
+          email: normalizedEmail,
           source: 'web',
         });
 
-        setAttemptingLogin(false);
+        setEmail(normalizedEmail);
         setSuccess(true);
-      } catch (error) {
+      } catch {
+        setError(
+          "We couldn't send the email. Check the address and try again.",
+        );
+      } finally {
         setAttemptingLogin(false);
-        setError('Invalid email');
       }
     }, [apiClient, email, trackEvent]);
 
@@ -55,10 +68,25 @@ const LoginMagicLinkWithInstructions: FC<LoginMagicLinkWithInstructionsProps> =
             <div className="flex flex-col space-y-2">
               <TextInput
                 className="!rounded-[12px] !border-none !bg-[rgba(249,249,249,0.05)] py-4 text-light"
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setError(undefined);
+                  setSuccess(false);
+                }}
                 value={email}
                 placeholder="satoshin@gmx.com"
                 autoFocus={true}
+                type="email"
+                name="email"
+                autoComplete="email"
+                inputMode="email"
+                spellCheck={false}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !attemptingLogin) {
+                    event.preventDefault();
+                    void login();
+                  }
+                }}
               />
               {error && (
                 <div className="text-left text-sm text-danger">{error}</div>
@@ -69,20 +97,25 @@ const LoginMagicLinkWithInstructions: FC<LoginMagicLinkWithInstructionsProps> =
                 </div>
               )}
             </div>
-            <div
-              onClick={login}
-              className="flex w-full items-center justify-center rounded-[300px] bg-[#7959FF] px-[36px] py-[10px] "
+            <button
+              type="button"
+              onClick={() => void login()}
+              disabled={attemptingLogin}
+              className="flex w-full items-center justify-center rounded-[300px] bg-[#7959FF] px-[36px] py-[10px] disabled:cursor-wait disabled:opacity-70"
             >
               <div className="text-[16px] text-light">
-                {(success && 'Resend email') || 'Send email'}
+                {attemptingLogin
+                  ? 'Sending...'
+                  : (success && 'Resend email') || 'Send email'}
               </div>
-            </div>
-            <div
+            </button>
+            <button
+              type="button"
               className="landing-btn-secondary-bg flex w-full cursor-pointer items-center justify-center rounded-[300px] px-[36px] py-[10px]"
               onClick={onClose}
             >
               <div className="text-[16px] text-light">Cancel</div>
-            </div>
+            </button>
           </div>
         </div>
       </>
