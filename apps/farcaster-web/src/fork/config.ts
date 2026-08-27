@@ -17,9 +17,6 @@ const forkConfig = {
   walletMode: 'external-only' as ForkWalletMode,
   walletConnectProjectId:
     import.meta.env.VITE_WALLETCONNECT_PROJECT_ID?.trim() || undefined,
-  walletExportUrl:
-    import.meta.env.VITE_FARCASTER_WALLET_EXPORT_URL ||
-    'https://wallet-export.farcaster.xyz/',
 } as const;
 
 export { forkConfig };

@@ -1,4 +1,4 @@
-import { CopyIcon, ExternalLinkIcon, ShieldCheckIcon } from 'lucide-react';
+import { CopyIcon, ShieldCheckIcon } from 'lucide-react';
 import { memo, useCallback, useState } from 'react';
 import { formatUnits } from 'viem';
 import { base } from 'viem/chains';
@@ -155,20 +155,20 @@ const WalletPage = memo(() => {
               <h2 className="font-semibold text-default">
                 Moving an existing Farcaster wallet
               </h2>
-              <p className="mb-3 text-sm text-muted">
-                Use Farcaster’s official export flow, then import directly into
-                the external wallet you trust. {forkConfig.brandName} never sees
-                the phrase or key.
+              <p className="mt-1 text-sm text-muted">
+                Wallet export only works inside the Farcaster mobile app. On
+                your phone:
               </p>
-              <a
-                href={forkConfig.walletExportUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="inline-flex items-center gap-1 text-sm font-semibold text-action-purple"
-              >
-                Open official export flow
-                <ExternalLinkIcon className="size-4" />
-              </a>
+              <ol className="my-3 list-decimal space-y-1 pl-5 text-sm text-default">
+                <li>Open Farcaster and go to Settings.</li>
+                <li>Open Advanced, then Advanced recovery options.</li>
+                <li>Choose Show wallet recovery phrase.</li>
+                <li>Import it directly into the external wallet you trust.</li>
+              </ol>
+              <p className="text-sm text-muted">
+                Keep the phrase private and never paste it into this site.{' '}
+                {forkConfig.brandName} never sees or stores it.
+              </p>
             </section>
           </div>
         </SettingsPageContent>
