@@ -1,0 +1,55 @@
+name: Farcaster upstream sync
+
+on:
+  schedule:
+    - cron: '17 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: farcaster-upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Merge upstream into a review branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "10X upstream bot"
+          git config user.email "actions@users.noreply.github.com"
+          git remote add upstream https://github.com/farcasterxyz/client.git
+          git fetch upstream main
+
+          if git merge-base --is-ancestor upstream/main HEAD; then
+            echo "Already current with upstream."
+            exit 0
+          fi
+
+          branch="automation/farcaster-$(date -u +%Y%m%d)-${GITHUB_RUN_ID}"
+          git switch -c "$branch"
+          if ! git merge --no-edit upstream/main; then
+            git merge --abort
+            title="Farcaster upstream merge conflict $(date -u +%Y-%m-%d)"
+            if ! gh issue list --state open --search "$title in:title" --json title --jq '.[].title' | grep -Fxq "$title"; then
+              gh issue create --title "$title" --body "The scheduled merge of \`farcasterxyz/client@main\` conflicted with the fork. Run \`git fetch upstream && git merge upstream/main\` locally and keep fork changes behind the adapter/config boundary."
+            fi
+            exit 1
+          fi
+
+          git push origin "$branch"
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "Sync Farcaster upstream $(date -u +%Y-%m-%d)" \
+            --body "Automated merge from \`farcasterxyz/client@main\`. Review wallet, auth, API-origin, dependency, and deployment changes before merging. This PR is intentionally not auto-merged."

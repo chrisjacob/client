@@ -1,6 +1,7 @@
 import { robinhood } from 'farcaster-client-data';
 import { bsc, degen, monadTestnet, unichain } from 'viem/chains';
 import { Config, createConfig, http, Transport } from 'wagmi';
+import { injected } from '@wagmi/core';
 import {
   arbitrum,
   arbitrumSepolia,
@@ -15,6 +16,9 @@ import {
   sepolia,
   zora,
 } from 'wagmi/chains';
+
+import { forkConfig } from '~/fork/config';
+import { walletConnectConnector } from '~/fork/walletConnectConnector';
 
 const chains = [
   arbitrum,
@@ -44,10 +48,29 @@ const transports = chains.reduce(
   {} as Record<number, Transport>,
 );
 
+const connectors = [
+  injected({ shimDisconnect: true }),
+  ...(forkConfig.walletConnectProjectId
+    ? [
+        walletConnectConnector({
+          projectId: forkConfig.walletConnectProjectId,
+          showQrModal: true,
+          metadata: {
+            name: forkConfig.brandName,
+            description: 'External wallet connection for 10X Social',
+            url: forkConfig.canonicalUrl,
+            icons: [`${forkConfig.canonicalUrl}/favicon.ico`],
+          },
+        }),
+      ]
+    : []),
+];
+
 const wagmiConfig: Config = createConfig({
   chains,
   transports,
-  connectors: [],
+  connectors,
+  multiInjectedProviderDiscovery: true,
 });
 
 export { wagmiConfig };

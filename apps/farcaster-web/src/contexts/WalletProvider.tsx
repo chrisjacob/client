@@ -14,6 +14,7 @@ import { Connector, useAccount, useConnectors } from 'wagmi';
 
 import { useEmbeddedWalletBridge } from '~/components/EmbeddedWallet';
 import { PreferredWalletDialog } from '~/components/wallet/PreferredWalletDialog';
+import { forkConfig } from '~/fork/config';
 import { logError } from '~/utils/logUtils';
 
 const PREFERRED_WALLET_KEY = 'preferred_wallet';
@@ -105,7 +106,17 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [isFullyLoaded, setIsFullyLoaded] = useState(false);
   const [preferredWallet, setPreferredWallet] = useState<string | undefined>(
-    () => localStorage.getItem(PREFERRED_WALLET_KEY) ?? undefined,
+    () => {
+      const storedWallet = localStorage.getItem(PREFERRED_WALLET_KEY);
+      if (
+        forkConfig.walletMode === 'external-only' &&
+        storedWallet === 'warpcast'
+      ) {
+        localStorage.removeItem(PREFERRED_WALLET_KEY);
+        return undefined;
+      }
+      return storedWallet ?? undefined;
+    },
   );
   const [connectedProvider, setConnectedProvider] =
     useState<Provider.Provider>();
@@ -138,11 +149,14 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
   // Wallet preference handlers
   const handleSetPreferredWallet = useCallback(
     (wallet: string) => {
+      if (forkConfig.walletMode === 'external-only' && wallet === 'warpcast') {
+        return;
+      }
       setPreferredWalletInner(wallet);
       localStorage.setItem(PREFERRED_WALLET_KEY, wallet);
 
       // Trigger Warpcast connection immediately when selected
-      if (wallet === 'warpcast') {
+      if (forkConfig.walletMode !== 'external-only' && wallet === 'warpcast') {
         siwfLog(
           'WalletProvider dispatching warpcast eth_requestAccounts to iframe',
           {
@@ -262,7 +276,11 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
     let nextProvider: Provider.Provider | undefined;
 
     try {
-      if (preferredWallet === 'warpcast' && ethProvider) {
+      if (
+        forkConfig.walletMode !== 'external-only' &&
+        preferredWallet === 'warpcast' &&
+        ethProvider
+      ) {
         // Get Warpcast embedded wallet
         const accounts = await ethProvider.request({ method: 'eth_accounts' });
         setWarpcastWalletAddress(accounts[0]);
@@ -331,7 +349,8 @@ const WalletProvider = ({ children }: WalletProviderProps) => {
           ? connectedProvider
           : disconnectedProvider,
       address: isFullyLoaded
-        ? preferredWallet === 'warpcast'
+        ? forkConfig.walletMode !== 'external-only' &&
+          preferredWallet === 'warpcast'
           ? warpcastWalletAddress
           : address
         : undefined,

@@ -3,6 +3,7 @@ import { useUnseen } from 'farcaster-client-hooks';
 import { FC, memo, useEffect } from 'react';
 
 import { useStandaloneMode } from '~/contexts/StandaloneModeProvider';
+import { forkConfig } from '~/fork/config';
 
 export type PageMetaProps = {
   title: string;
@@ -71,7 +72,7 @@ const PageMeta: FC<PageMetaProps> = memo(
         )}
         <meta property="og:type" content={ogType} />
         {canonical && <meta property="og:url" content={canonical} />}
-        <meta property="og:site_name" content="Farcaster" />
+        <meta property="og:site_name" content={forkConfig.brandName} />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content={twitterCard} />
@@ -89,7 +90,7 @@ const PageMeta: FC<PageMetaProps> = memo(
         {canonical && <link rel="canonical" href={canonical} />}
         <link
           rel="sitemap"
-          href="https://farcaster.xyz/sitemap.xml"
+          href={`${forkConfig.canonicalUrl}/sitemap.xml`}
           type="application/xml"
         />
       </Helmet>

@@ -5,6 +5,7 @@ import { MiniApp } from '~/components/miniApp/MiniApp';
 import { FloatingWallet } from '~/components/rightSidebar/FloatingWallet';
 import { useLaunchMiniApp } from '~/contexts/MiniAppProvider';
 import { useMinimizableWindowContext } from '~/contexts/MinimizableWindowProvider';
+import { forkConfig } from '~/fork/config';
 import { useWalletGeoRestricted } from '~/hooks/data/useWalletGeoRestricted';
 import { useSearchParams } from '~/hooks/navigation/useSearchParams';
 import { lazyWithPreload } from '~/lazy/helpers';
@@ -92,7 +93,9 @@ function MinimizableWindowHost({
       <React.Suspense fallback={null}>
         <LazySpaceMiniPlayer compact={variant === 'direct-casts'} />
       </React.Suspense>
-      {!geoRestricted && <FloatingWallet variant={variant} />}
+      {forkConfig.walletMode !== 'external-only' && !geoRestricted && (
+        <FloatingWallet variant={variant} />
+      )}
     </div>
   );
 }

@@ -14,6 +14,7 @@ import { useWallet } from '~/contexts/WalletProvider';
 import { useCurrentUser } from '~/hooks/data/useCurrentUser';
 import { useIsAdmin } from '~/hooks/data/useIsAdmin';
 import { useWalletGeoRestricted } from '~/hooks/data/useWalletGeoRestricted';
+import { forkConfig } from '~/fork/config';
 
 function getMiniAppPermission(
   wallet: NonNullable<
@@ -148,12 +149,12 @@ export function PreferredWalletSelector({ modal }: { modal?: boolean }) {
           )}
         </div>
         <div className="text-md text-muted">
-          This wallet will be used for transactions in miniapps.{' '}
+          This external wallet will approve transactions and mini-app requests.{' '}
           {modal && <>You can change it anytime in Settings.</>}
         </div>
       </div>
       <div className="flex flex-col rounded-xl bg-surface-secondary">
-        {!geoRestricted && (
+        {forkConfig.walletMode !== 'external-only' && !geoRestricted && (
           <WalletOption
             name="Farcaster Wallet"
             description="Mini-apps allowed"

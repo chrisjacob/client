@@ -1,0 +1,2 @@
+# React Router history fallback. Existing static files are served first.
+/* /index.html 200

@@ -1,0 +1,25 @@
+{
+  "farcaster": {
+    "repository": "https://github.com/farcasterxyz/client.git",
+    "branch": "main",
+    "baseline": "b6922e24036cac6f5e6d51904a59ff7cfcdd8483",
+    "strategy": "merge-pr"
+  },
+  "quorumWallet": {
+    "repository": "https://github.com/quilibriumnetwork/quorum-mobile.git",
+    "branch": "master",
+    "baseline": "d4fc312a12482da9bb2ba8c7f40f925541bde083",
+    "strategy": "review-report",
+    "trackedPaths": [
+      "app/wallet.tsx",
+      "app/(tabs)/wallet/**",
+      "components/wallet/**",
+      "components/WalletModal.tsx",
+      "components/WarpcastWalletImportModal.tsx",
+      "hooks/useWallet.ts",
+      "hooks/useWalletSelection.ts",
+      "hooks/useWarpcastWallet.ts",
+      "services/wallet/**"
+    ]
+  }
+}

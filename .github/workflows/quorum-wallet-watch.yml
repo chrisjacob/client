@@ -1,0 +1,54 @@
+name: Quorum wallet watch
+
+on:
+  schedule:
+    - cron: '43 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Report wallet-relevant upstream changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GIT_LFS_SKIP_SMUDGE: '1'
+        run: |
+          set -euo pipefail
+          baseline=$(node -p "require('./upstreams.json').quorumWallet.baseline")
+          git clone --filter=blob:none --no-checkout https://github.com/quilibriumnetwork/quorum-mobile.git /tmp/quorum-mobile
+          cd /tmp/quorum-mobile
+          git fetch --depth=1 origin master
+          head=$(git rev-parse origin/master)
+          if [ "$head" = "$baseline" ]; then
+            echo "No new Quorum commit."
+            exit 0
+          fi
+          git fetch --depth=1 origin "$baseline" || true
+          changed=$(git diff --name-only "$baseline" "$head" -- \
+            'app/wallet.tsx' \
+            'app/(tabs)/wallet' \
+            'components/wallet' \
+            'components/WalletModal.tsx' \
+            'components/WarpcastWalletImportModal.tsx' \
+            'hooks/useWallet.ts' \
+            'hooks/useWalletSelection.ts' \
+            'hooks/useWarpcastWallet.ts' \
+            'services/wallet' || true)
+          if [ -z "$changed" ]; then
+            echo "New commits, but no tracked wallet paths changed."
+            exit 0
+          fi
+          short=${head:0:12}
+          title="Review Quorum wallet update $short"
+          if gh issue list --repo "$GITHUB_REPOSITORY" --state all --search "$title in:title" --json title --jq '.[].title' | grep -Fxq "$title"; then
+            echo "Issue already exists."
+            exit 0
+          fi
+          body=$(printf 'Quorum wallet paths changed after the tracked baseline.\n\n- Baseline: `%s`\n- Head: `%s`\n- Diff: https://github.com/quilibriumnetwork/quorum-mobile/compare/%s...%s\n\nChanged paths:\n```text\n%s\n```\n\nReview for UX/protocol ideas only. Do not copy key-custody code into the external-wallet adapter. Any GPL-derived implementation requires attribution, source disclosure, and security review.' "$baseline" "$head" "$baseline" "$head" "$changed")
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" --body "$body"

@@ -45,6 +45,7 @@
     "@vidstack/react": "^1.12.13",
     "@wagmi/connectors": "^7.0.2",
     "@wagmi/core": "^3.0.0",
+    "@walletconnect/ethereum-provider": "2.21.7",
     "class-variance-authority": "^0.7.1",
     "classnames": "2.3.2",
     "cron-parser": "^4.9.0",
@@ -97,10 +98,12 @@
   },
   "scripts": {
     "validate-sitemaps": "node scripts/validateSitemaps.mjs",
-    "sync-sitemap-index": "node scripts/validateSitemaps.mjs && cp public/sitemaps/sitemap_index.xml public/sitemap.xml",
+    "sync-sitemap-index": "node scripts/syncSitemapIndex.mjs",
     "dev": "pnpm sync-sitemap-index && vite",
-    "start": "pnpm sync-sitemap-index && HTTPS=true vite",
-    "build": "pnpm sync-sitemap-index && vite build",
+    "start": "pnpm sync-sitemap-index && vite",
+    "build": "pnpm sync-sitemap-index && vite build && node scripts/prepareDeployment.mjs",
+    "deploy:preview": "pnpm build && wrangler pages deploy dist --project-name 10x-social --branch preview",
+    "deploy:production": "pnpm build && wrangler pages deploy dist --project-name 10x-social --branch main",
     "profile:bundle": "pnpm sync-sitemap-index && BUNDLE_ANALYZER=true vite build",
     "test": "vitest run",
     "format": "prettier --write \"**/*.{ts,tsx,js,json}\" --config ../../.prettierrc.js --ignore-path ../../.prettierignore",
@@ -151,6 +154,7 @@
     "vite": "^6.4.3",
     "vite-plugin-node-polyfills": "^0.25.0",
     "vitest": "^3.1.1",
+    "wrangler": "4.115.0",
     "@typescript/native": "npm:typescript@^7.0.2"
   }
 }
