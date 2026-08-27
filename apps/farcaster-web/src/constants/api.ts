@@ -18,13 +18,28 @@ function isLocalApiEnabled(): boolean {
 
 const useLocalApi = isLocalApiEnabled();
 
-const baseApiHost = useLocalApi ? 'localhost:8080' : 'farcaster.xyz/~api';
+const upstreamApiUrl = 'https://farcaster.xyz/~api';
 
-const baseUseHttps = !useLocalApi;
+// Farcaster permits its private web API from the official site and local
+// development origins, but not from arbitrary production origins. Production
+// builds therefore use the same-origin Pages Function relay in /functions.
+// An explicit build-time URL can bypass the relay if Farcaster later
+// allowlists the fork's domain. VITE_* values are public browser config.
+const productionApiUrl =
+  import.meta.env.VITE_FARCASTER_API_BASE_URL?.trim() ||
+  (typeof window === 'undefined'
+    ? upstreamApiUrl
+    : `${window.location.origin}/~api`);
 
-const baseApiUrl = baseUseHttps
-  ? `https://${baseApiHost}`
-  : `http://${baseApiHost}`;
+const baseApiUrl = useLocalApi
+  ? 'http://localhost:8080'
+  : isProd
+    ? productionApiUrl
+    : upstreamApiUrl;
+
+const parsedBaseApiUrl = new URL(baseApiUrl);
+const baseApiHost = `${parsedBaseApiUrl.host}${parsedBaseApiUrl.pathname}`;
+const baseUseHttps = parsedBaseApiUrl.protocol === 'https:';
 
 const wsUrl = useLocalApi
   ? `ws://${baseApiHost}/stream`
