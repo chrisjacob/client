@@ -524,21 +524,23 @@ function InnerMiniAppContent({
   );
 
   const [endpoint, setEndpoint] = useState<HostEndpoint | undefined>(undefined);
-  useEffect(() => {
-    const iframe = iframeLoaderRef.current?.iframe;
-    if (!iframe || !url) {
-      return;
-    }
+  const handleIframeReady = useCallback(
+    (iframe: HTMLIFrameElement) => {
+      if (!url) {
+        setEndpoint(undefined);
+        return;
+      }
 
-    setEndpoint(
-      createIframeEndpoint({
-        iframe,
-        // targetOrigin: '*',
-        targetOrigin: new URL(url).origin,
-        debug,
-      }),
-    );
-  }, [debug, url]);
+      setEndpoint(
+        createIframeEndpoint({
+          iframe,
+          targetOrigin: new URL(url).origin,
+          debug,
+        }),
+      );
+    },
+    [debug, url],
+  );
 
   const emit = useMemo(() => endpoint?.emit, [endpoint?.emit]);
 
@@ -1392,6 +1394,7 @@ function InnerMiniAppContent({
             <AppFrameIFrame
               ref={iframeLoaderRef}
               url={url}
+              onIframeReady={handleIframeReady}
               splashBackgroundColor={splashBackgroundColor}
               disablePointerEvents={isKebabMenuOpen}
               primaryButton={primaryButton}
@@ -1429,6 +1432,7 @@ type AppFrameIframeProps = {
   primaryButton: PrimaryButtonState | null;
   handlePrimaryButtonPress: () => void;
   onLoaded?: () => void;
+  onIframeReady?: (iframe: HTMLIFrameElement) => void;
 };
 
 // Returns ReactElement instead of ReactNode because the latter allows falsey
@@ -1443,6 +1447,7 @@ const AppFrameIFrame = forwardRef<IFrameLoaderRef, AppFrameIframeProps>(
       primaryButton,
       handlePrimaryButtonPress,
       onLoaded,
+      onIframeReady,
     },
     ref,
   ): ReactElement => {
@@ -1475,6 +1480,7 @@ const AppFrameIFrame = forwardRef<IFrameLoaderRef, AppFrameIframeProps>(
           allow="microphone; camera; clipboard-write"
           sandbox="allow-forms allow-scripts allow-same-origin allow-popups"
           onLoaded={onLoaded}
+          onIframeReady={onIframeReady}
           className={classNames(
             splashBackgroundColor
               ? `bg-[${splashBackgroundColor}]`

@@ -23,6 +23,7 @@ interface IFrameLoaderProps extends React.IframeHTMLAttributes<HTMLIFrameElement
   width?: number;
   height?: number;
   onLoaded?: () => void;
+  onIframeReady?: (iframe: HTMLIFrameElement) => void;
 }
 
 export interface IFrameLoaderRef {
@@ -39,11 +40,28 @@ export const IFrameLoader = forwardRef<
   PropsWithChildren<IFrameLoaderProps>
 >(
   (
-    { transition, children, width, height, onLoaded, ...iframeProps },
+    {
+      transition,
+      children,
+      width,
+      height,
+      onLoaded,
+      onIframeReady,
+      ...iframeProps
+    },
     ref,
   ): ReactElement => {
     const [isLoaded, setIsLoaded] = useState(false);
     const iframeRef = React.useRef<HTMLIFrameElement>(null);
+    const setIframeRef = useCallback(
+      (iframe: HTMLIFrameElement | null) => {
+        iframeRef.current = iframe;
+        if (iframe) {
+          onIframeReady?.(iframe);
+        }
+      },
+      [onIframeReady],
+    );
 
     useEffect(() => {
       setIsLoaded(false);
@@ -90,12 +108,12 @@ export const IFrameLoader = forwardRef<
       return (
         <iframe
           {...iframeProps}
-          ref={iframeRef}
+          ref={setIframeRef}
           className={`scrollbar-hide size-full flex-1 ${isLoaded ? 'opacity-100' : 'opacity-0'} ${transition ? 'transition-opacity duration-1000' : ''} ${iframeProps.className || ''}`}
           onLoad={handleLoad}
         />
       );
-    }, [handleLoad, iframeProps, isLoaded, transition]);
+    }, [handleLoad, iframeProps, isLoaded, setIframeRef, transition]);
 
     // It's important we always render children here otherwise the wallet iframe
     // will get unmounted and remounted!
