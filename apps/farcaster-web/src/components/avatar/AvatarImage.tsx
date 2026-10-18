@@ -15,7 +15,7 @@ import {
   xs2AvatarDiameter,
   xsAvatarDiameter,
 } from '~/constants/avatar';
-import { applyCloudflarePath } from '~/utils/images';
+import { applyForkAvatarImagePath } from '~/fork/avatarImages';
 
 type AvatarSize =
   | 'xs2'
@@ -91,10 +91,10 @@ const AvatarImage: FC<AvatarImageProps> = memo(
 
     const src = useMemo(() => {
       if (typeof imgUrl === 'undefined') {
-        return applyCloudflarePath(defaultAvatarUrl, length);
+        return applyForkAvatarImagePath(defaultAvatarUrl, length);
       }
 
-      return applyCloudflarePath(imgUrl, length * 2);
+      return applyForkAvatarImagePath(imgUrl, length * 2);
     }, [imgUrl, length]);
 
     return (
