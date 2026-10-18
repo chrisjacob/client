@@ -101,6 +101,7 @@
     "sync-sitemap-index": "node scripts/syncSitemapIndex.mjs",
     "dev": "pnpm sync-sitemap-index && vite",
     "start": "pnpm sync-sitemap-index && vite",
+    "local:tunnel": "node scripts/devTunnel.mjs",
     "build": "pnpm sync-sitemap-index && vite build && node scripts/prepareDeployment.mjs",
     "deploy:preview": "pnpm build && wrangler pages deploy dist --project-name 10x-social --branch preview",
     "deploy:production": "pnpm build && wrangler pages deploy dist --project-name 10x-social --branch main",

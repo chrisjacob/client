@@ -25,15 +25,17 @@ const upstreamApiUrl = 'https://farcaster.xyz/~api';
 // builds therefore use the same-origin Pages Function relay in /functions.
 // An explicit build-time URL can bypass the relay if Farcaster later
 // allowlists the fork's domain. VITE_* values are public browser config.
+const configuredApiUrl =
+  import.meta.env.VITE_FARCASTER_API_BASE_URL?.trim() || undefined;
 const productionApiUrl =
-  import.meta.env.VITE_FARCASTER_API_BASE_URL?.trim() ||
+  configuredApiUrl ||
   (typeof window === 'undefined'
     ? upstreamApiUrl
     : `${window.location.origin}/~api`);
 
 const baseApiUrl = useLocalApi
   ? 'http://localhost:8080'
-  : isProd
+  : isProd || configuredApiUrl
     ? productionApiUrl
     : upstreamApiUrl;
 

@@ -46,6 +46,26 @@ pnpm deploy:preview
 Use the resulting `*.pages.dev` preview for wallet and login testing before
 attaching the production domain.
 
+## Stable local tunnel
+
+The named `social-local` Cloudflare Tunnel exposes the development client at
+`https://local.10x.social`. Once that hostname has a proxied CNAME to
+`250b9663-a16a-430c-b883-1b4f97d0bfed.cfargotunnel.com`, start or attach the
+local client with:
+
+```bash
+pnpm --dir apps/farcaster-web local:tunnel
+```
+
+The launcher starts Vite on `http://127.0.0.1:5173` with local TLS disabled,
+because Cloudflare terminates HTTPS at the edge. If an HTTP server is already
+responding on port 5173, the launcher reuses it. Stop any other `social-local`
+tunnel replica first so Cloudflare does not balance requests across different
+local origins. The launcher also selects the same-origin `/~api` relay, and
+Vite proxies that fixed path to Farcaster while stripping cookies and
+forwarding metadata. Tunnel credentials stay in the user's `.cloudflared`
+directory and must never be committed.
+
 ## Domain cutover
 
 After the preview is approved, open the Pages project in Cloudflare and add

@@ -6,6 +6,26 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
 const httpsEnabled = process.env.HTTPS !== 'false';
+const relayRequestHeadersToRemove = [
+  'cf-connecting-ip',
+  'cf-ipcountry',
+  'cf-ray',
+  'cf-visitor',
+  'connection',
+  'cookie',
+  'origin',
+  'referer',
+  'x-forwarded-for',
+  'x-forwarded-host',
+  'x-forwarded-proto',
+];
+const relayResponseHeadersToRemove = [
+  'access-control-allow-credentials',
+  'access-control-allow-headers',
+  'access-control-allow-methods',
+  'access-control-allow-origin',
+  'set-cookie',
+];
 
 export default defineConfig({
   plugins: [
@@ -27,6 +47,27 @@ export default defineConfig({
   },
   server: {
     https: httpsEnabled,
+    allowedHosts: ['local.10x.social'],
+    proxy: {
+      '/~api': {
+        target: 'https://farcaster.xyz',
+        changeOrigin: true,
+        secure: true,
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyRequest) => {
+            for (const header of relayRequestHeadersToRemove) {
+              proxyRequest.removeHeader(header);
+            }
+          });
+          proxy.on('proxyRes', (proxyResponse) => {
+            for (const header of relayResponseHeadersToRemove) {
+              delete proxyResponse.headers[header];
+            }
+            proxyResponse.headers['cache-control'] = 'no-store';
+          });
+        },
+      },
+    },
   },
   build: {
     sourcemap: 'hidden',
