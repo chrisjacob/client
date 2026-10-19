@@ -136,9 +136,9 @@ const CastImageThumbnail: FC<CastImageThumbnailsProps> = memo(
 
     // Gate every feed thumbnail, not just mime-identified GIFs: backend
     // mimeType is unreliable (old casts report image/jpeg for animated
-    // media) and URL-only embeds (e.g. Tenor GIFs) synthesize media with no
-    // mimeType at all. autoplay={false} and start/stop are no-ops on static
-    // images, so over-gating costs nothing.
+    // media) and URL-only embeds (e.g. provider-hosted GIFs) synthesize media
+    // with no mimeType at all. autoplay={false} and start/stop are no-ops on
+    // static images, so over-gating costs nothing.
     const animationGatedByViewability = useAnimatedImageFeedViewability({
       castHash,
       start: startAnimating,

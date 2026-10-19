@@ -1,5 +1,4 @@
-import { ApiCast, ApiMediaV2 } from 'farcaster-client-data';
-import { processMediasForRendering } from 'farcaster-client-hooks';
+import { ApiCast } from 'farcaster-client-data';
 import { ImageIcon, Languages, PlayIcon, Video } from 'lucide-react';
 import React, { FC, memo, MouseEvent, useMemo } from 'react';
 
@@ -8,6 +7,10 @@ import {
   SpaceEmbedAttachment,
 } from '~/components/attachments/SpaceEmbedAttachment';
 import { Image } from '~/components/images/Image';
+import {
+  getCastImageMediaForRendering,
+  processForkMediasForRendering,
+} from '~/fork/klipyMediaRendering';
 import { useCastTranslationDisplay } from '~/hooks/casts/useCastTranslationDisplay';
 
 type NotificationGroupCastTextProps = {
@@ -133,20 +136,9 @@ const NotificationGroupCastTextEmbeds: FC<{
 
     const pills = [];
     if (embeds.images.length > 0) {
-      const mediaImageEmbeds = embeds.images.map((image) => {
-        if (typeof image.media !== 'undefined') {
-          return image.media as ApiMediaV2;
-        }
+      const mediaImageEmbeds = embeds.images.map(getCastImageMediaForRendering);
 
-        return {
-          version: '2',
-          staticRaster: image.url,
-          height: 1000,
-          width: 1000,
-        } satisfies ApiMediaV2;
-      });
-
-      const imagesToRender = processMediasForRendering({
+      const imagesToRender = processForkMediasForRendering({
         medias: mediaImageEmbeds,
         pixelDensity: 3,
         blockAnimated: false,

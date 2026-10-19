@@ -26,10 +26,11 @@ implemented under `src/fork` and connected to upstream UI through the smallest
 possible adapter call. This keeps customization touchpoints easy to identify
 and reapply when Farcaster publishes a replacement source snapshot.
 
-| Flag                                | Default | Purpose                                                        |
-| ----------------------------------- | ------- | -------------------------------------------------------------- |
-| `VITE_10X_FEATURES`                 | `true`  | Master switch for all optional 10X product features.           |
-| `VITE_10X_FEATURE_ANIMATED_AVATARS` | `true`  | Allow animated GIF profile images on every web avatar surface. |
+| Flag                                  | Default | Purpose                                                        |
+| ------------------------------------- | ------- | -------------------------------------------------------------- |
+| `VITE_10X_FEATURES`                   | `true`  | Master switch for all optional 10X product features.           |
+| `VITE_10X_FEATURE_ANIMATED_AVATARS`   | `true`  | Allow animated GIF profile images on every web avatar surface. |
+| `VITE_10X_FEATURE_KLIPY_MEDIA_PICKER` | `true`  | Add KLIPY GIF, sticker, clip, meme, and AI emoji search.       |
 
 Flags are public build settings and take effect on the next build/deployment.
 An individual feature is active only when both `VITE_10X_FEATURES` and its own
@@ -50,8 +51,22 @@ pnpm --dir apps/farcaster-web start
 ```
 
 Copy `apps/farcaster-web/.env.example` to `.env.local` only when you need to
-override public build settings. Never put server credentials in a `VITE_`
-variable: Vite embeds those values in the browser bundle.
+override public build settings. Never put a confidential server credential in a
+`VITE_` variable: Vite embeds those values in the browser bundle.
+
+The KLIPY picker intentionally calls KLIPY from the end-user's browser and
+stores the returned media URL directly as the Farcaster embed. It does not use a
+10X proxy or re-upload the media. Configure `VITE_KLIPY_API_KEY` as a public,
+browser-scoped application credential. For compatibility with the existing
+ignored setup, Vite also reads `KLIPY_API_KEY` from `.dev.vars.local` in
+development and `.dev.vars.production` in production; either value is embedded
+in the resulting JavaScript and is not secret.
+
+Keep the production feature flag disabled until KLIPY confirms this use in
+writing. The architecture, outstanding questions, and launch checklist are in
+[`docs/KLIPY_PRODUCTION_REVIEW.md`](docs/KLIPY_PRODUCTION_REVIEW.md).
+Vite defaults this feature on in development and off in production unless
+`VITE_10X_FEATURE_KLIPY_MEDIA_PICKER` is explicitly supplied for that build.
 
 ## Update model
 

@@ -5,11 +5,11 @@ import {
   ApiDirectCastMessageV3,
   ApiMediaV2,
 } from 'farcaster-client-data';
-import { processMediasForRendering } from 'farcaster-client-hooks';
 import React from 'react';
 
 import { Image as ImageRenderer } from '~/components/images/Image';
 import { ImageLightboxModal } from '~/components/modals/ImageLightboxModal';
+import { processForkMediasForRendering } from '~/fork/klipyMediaRendering';
 import { useDirectCastCheckmarks } from '~/hooks/directCasts/useDirectCastCheckmarks';
 import { useDirectCastFormattedTimestamp } from '~/hooks/directCasts/useDirectCastFormattedTimestamp';
 
@@ -63,7 +63,10 @@ const DirectCastImageEmbed: React.FC<DirectCastImageEmbedProps> = React.memo(
       const medias = mediaEmbeds;
       // Hard-code web client pixel density to 3 for now since users are
       // reporting some blurry rendering with pixelDensity of < 3.
-      const images = processMediasForRendering({ medias, pixelDensity: 3 });
+      const images = processForkMediasForRendering({
+        medias,
+        pixelDensity: 3,
+      });
 
       if (images.length === 0) {
         return undefined;

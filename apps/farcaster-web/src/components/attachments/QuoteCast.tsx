@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import {
   ApiCastImageEmbed,
   ApiCastVideoEmbed,
-  ApiMediaV2,
   ApiQuoteCastEmbed,
   CastHashPrefix,
   getCastHashPrefix,
@@ -11,7 +10,6 @@ import {
   CastClickType,
   ClientProcessedMedia,
   getCastSnap,
-  processMediasForRendering,
   useHydratedQuoteCast,
   usePrefetchUserThreadCasts,
   useTrackCastClick,
@@ -28,6 +26,10 @@ import { CastAuthorLine } from '~/components/casts/CastAuthorLine';
 import { Image } from '~/components/images/Image';
 import { LinkToConversationWithUsername } from '~/components/links/LinkToConversationWithUsername';
 import { useUserAppContext } from '~/contexts/UserAppContextProvider';
+import {
+  getCastImageMediaForRendering,
+  processForkMediasForRendering,
+} from '~/fork/klipyMediaRendering';
 
 import { SnapEmbedAttachment } from './SnapEmbedAttachment';
 
@@ -284,20 +286,9 @@ function QuoteCastVideoEmbed({ video }: { video: ApiCastVideoEmbed }) {
 }
 
 function QuoteCastImageEmbeds({ images }: { images: ApiCastImageEmbed[] }) {
-  const mediaImageEmbeds = images.map((image) => {
-    if (typeof image.media !== 'undefined') {
-      return image.media as ApiMediaV2;
-    }
+  const mediaImageEmbeds = images.map(getCastImageMediaForRendering);
 
-    return {
-      version: '2',
-      staticRaster: image.url,
-      height: 1000,
-      width: 1000,
-    } satisfies ApiMediaV2;
-  });
-
-  const imagesToRender = processMediasForRendering({
+  const imagesToRender = processForkMediasForRendering({
     medias: mediaImageEmbeds,
     pixelDensity: 3,
     blockAnimated: false,

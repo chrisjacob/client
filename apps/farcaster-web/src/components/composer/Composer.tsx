@@ -42,6 +42,7 @@ import { CastLengthCounter } from '~/components/composer/components/CastLengthCo
 import { ComposerChannelSelector } from '~/components/composer/components/ComposerChannelSelector';
 import { ComposerParentCast } from '~/components/composer/components/ComposerParentCast';
 import { EmojiComposerPicker } from '~/components/composer/pickers/EmojiComposerPicker';
+import { KlipyMediaComposerPicker } from '~/components/composer/pickers/KlipyMediaComposerPicker';
 import { MediaComposerPicker } from '~/components/composer/pickers/MediaComposerPicker';
 import { FarcasterProUnlockFeaturesModal } from '~/components/farcasterPro/FarcasterProUnlockFeaturedModal';
 import { DefaultButton } from '~/components/forms/buttons/DefaultButton';
@@ -52,6 +53,8 @@ import {
   useComposer,
 } from '~/contexts/ComposerParentCastProvider';
 import { useUserAppContext } from '~/contexts/UserAppContextProvider';
+import { forkFeatureFlags } from '~/fork/featureFlags';
+import { createKlipyComposerEmbed, type KlipyMediaItem } from '~/fork/klipy';
 import { useCurrentUser } from '~/hooks/data/useCurrentUser';
 import { useOptimisticUploadCloudflareImage } from '~/hooks/data/useOptimisticUploadCloudflareImage';
 import { useNavigateToConversation } from '~/hooks/navigation/useNavigateToConversation';
@@ -508,6 +511,7 @@ const ComposerInner = React.forwardRef<
       cancelActiveVideoUpload,
       getCanAddMoreEmbeds,
       getRemainingEmbedsCount,
+      addEmbed,
       detailedUploadingErrors,
       setEmbedsFromDraftCast,
       setEmbedsFromAllDraftCasts,
@@ -515,6 +519,28 @@ const ComposerInner = React.forwardRef<
       hasPendingMediaUploads,
       uploadingStatuses,
     } = castComposerEmbedsReturn;
+
+    const addKlipyMediaEmbed = useCallback(
+      async ({ item }: { item: KlipyMediaItem }) => {
+        const embed = createKlipyComposerEmbed(item);
+        addEmbed({ castLocalKey: focusedCastLocalKey, embed });
+
+        if (embed.kind === 'video') {
+          dispatch({
+            type: 'AddVideo',
+            castLocalKey: focusedCastLocalKey,
+            video: { src: item.mediaUrl, w: item.width, h: item.height },
+          });
+        } else {
+          dispatch({
+            type: 'AddImage',
+            castLocalKey: focusedCastLocalKey,
+            image: { src: item.mediaUrl, w: item.width, h: item.height },
+          });
+        }
+      },
+      [addEmbed, dispatch, focusedCastLocalKey],
+    );
 
     // Keep the ref in sync so resolveUrlEmbedsOnFailure sees fresh snap state.
     getSnapEmbedUrlsRef.current = getSnapEmbedUrls;
@@ -1969,6 +1995,21 @@ const ComposerInner = React.forwardRef<
                   castEmbedLimit={castEmbedLimit}
                   onMediaUpload={addMediaEmbed}
                 />
+                {forkFeatureFlags.klipyMediaPicker && (
+                  <KlipyMediaComposerPicker
+                    className="bg-action-muted! !rounded-md !px-2 hover:!bg-tertiary"
+                    disabled={
+                      !!uploadingStatuses[focusedCastLocalKey] ||
+                      (getRemainingEmbedsCount(focusedCastLocalKey) > 0 &&
+                        !getCanAddMoreEmbeds(focusedCastLocalKey))
+                    }
+                    getRemainingEmbedsCount={() =>
+                      getRemainingEmbedsCount(focusedCastLocalKey)
+                    }
+                    castEmbedLimit={castEmbedLimit}
+                    onMediaSelect={addKlipyMediaEmbed}
+                  />
+                )}
                 <EmojiComposerPicker
                   className="!px-2 bg-action-muted hover:!bg-tertiary"
                   iconClassName="text-muted"

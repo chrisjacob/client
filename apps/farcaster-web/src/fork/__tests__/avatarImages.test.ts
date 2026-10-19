@@ -64,6 +64,7 @@ describe('10X fork feature flags', () => {
     expect(resolveForkFeatureFlags({})).toEqual({
       enabled: true,
       animatedAvatars: true,
+      klipyMediaPicker: true,
     });
   });
 
@@ -76,6 +77,7 @@ describe('10X fork feature flags', () => {
     ).toEqual({
       enabled: true,
       animatedAvatars: false,
+      klipyMediaPicker: true,
     });
   });
 
@@ -84,10 +86,12 @@ describe('10X fork feature flags', () => {
       resolveForkFeatureFlags({
         VITE_10X_FEATURES: 'false',
         VITE_10X_FEATURE_ANIMATED_AVATARS: 'true',
+        VITE_10X_FEATURE_KLIPY_MEDIA_PICKER: 'true',
       }),
     ).toEqual({
       enabled: false,
       animatedAvatars: false,
+      klipyMediaPicker: false,
     });
   });
 });

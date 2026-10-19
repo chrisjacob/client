@@ -1,13 +1,10 @@
 import classNames from 'classnames';
 import { ApiMediaV2 } from 'farcaster-client-data';
-import {
-  CastClickType,
-  processMediasForRendering,
-  useTrackCastClick,
-} from 'farcaster-client-hooks';
+import { CastClickType, useTrackCastClick } from 'farcaster-client-hooks';
 import React from 'react';
 
 import { Image as ImageRenderComponent } from '~/components/images/Image';
+import { processForkMediasForRendering } from '~/fork/klipyMediaRendering';
 import { useFullScreenImages } from '~/hooks/casts/useCastBody';
 
 type ImageAttachmentGroupProps = {
@@ -44,7 +41,7 @@ const ImageAttachmentGroup: React.FC<ImageAttachmentGroupProps> = React.memo(
     const imagesToRender = React.useMemo(() => {
       // Hard-code web client pixel density to 3 for now since users are
       // reporting some blurry rendering with pixelDensity of < 3.
-      return processMediasForRendering({
+      return processForkMediasForRendering({
         medias,
         pixelDensity: 3,
         blockAnimated: false,

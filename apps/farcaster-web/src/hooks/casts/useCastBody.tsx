@@ -2,14 +2,12 @@ import {
   ApiCast,
   ApiCastEmbeds,
   ApiCastUrlEmbed,
-  ApiMediaV2,
   ApiTokenLinkCore,
 } from 'farcaster-client-data';
 import {
   ClientProcessedMedia,
   getCastEmbedLayout,
   isSnapEmbed,
-  processMediasForRendering,
   useCastAttachmentCache,
   useTelemetry,
   useTrackCastClick,
@@ -33,6 +31,11 @@ import { VideoAttachment } from '~/components/attachments/VideoAttachment';
 import { ImageLightboxModal } from '~/components/modals/ImageLightboxModal';
 import { LinkifiedText } from '~/components/text/LinkifiedText';
 import { useUserAppContext } from '~/contexts/UserAppContextProvider';
+import {
+  getCastImageMediaForRendering,
+  getCastVideoUrlForRendering,
+  processForkMediasForRendering,
+} from '~/fork/klipyMediaRendering';
 import { getRenderableEmbeds } from '~/utils/castUtils';
 
 type CastBody = {
@@ -338,21 +341,10 @@ const useCastAttachment = ({
 
     const mediaImageEmbeds = renderableEmbeds
       .filter((o) => o.type === 'image')
-      .map(({ data: image }) => {
-        if (typeof image.media !== 'undefined') {
-          return image.media as ApiMediaV2;
-        }
-
-        return {
-          version: '2',
-          staticRaster: image.url,
-          height: 1000,
-          width: 1000,
-        } satisfies ApiMediaV2;
-      });
+      .map(({ data: image }) => getCastImageMediaForRendering(image));
 
     const startTime = Date.now();
-    const imagesToRender = processMediasForRendering({
+    const imagesToRender = processForkMediasForRendering({
       medias: mediaImageEmbeds,
       pixelDensity: 3,
       blockAnimated: false,
@@ -375,7 +367,7 @@ const useCastAttachment = ({
                 return (
                   <VideoAttachment
                     key={videoIndex}
-                    url={video.url}
+                    url={getCastVideoUrlForRendering(video)}
                     videoWidth={video.width!}
                     videoHeight={video.height!}
                     thumbnailUrl={video.thumbnailUrl}
@@ -460,7 +452,7 @@ const useCastAttachment = ({
                 return (
                   <VideoAttachment
                     key={videoIndex}
-                    url={video.url}
+                    url={getCastVideoUrlForRendering(video)}
                     videoWidth={video.width!}
                     videoHeight={video.height!}
                     thumbnailUrl={video.thumbnailUrl}

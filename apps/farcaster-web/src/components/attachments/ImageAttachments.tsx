@@ -1,5 +1,7 @@
-import { ApiCastEmbeds, ApiMediaV2 } from 'farcaster-client-data';
+import { ApiCastEmbeds } from 'farcaster-client-data';
 import React from 'react';
+
+import { getCastImageMediaForRendering } from '~/fork/klipyMediaRendering';
 
 import { ImageAttachmentGroup } from './ImageAttachmentGroup';
 
@@ -29,18 +31,7 @@ const ImageAttachments: React.FC<ImageAttachmentsProps> = ({
       return <></>;
     }
 
-    const mediaImageEmbeds = images.map((image) => {
-      if (typeof image.media !== 'undefined') {
-        return image.media as ApiMediaV2;
-      }
-
-      return {
-        version: '2',
-        staticRaster: image.url,
-        height: 1000,
-        width: 1000,
-      } satisfies ApiMediaV2;
-    });
+    const mediaImageEmbeds = images.map(getCastImageMediaForRendering);
 
     return (
       <ImageAttachmentGroup
