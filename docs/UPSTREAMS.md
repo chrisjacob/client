@@ -34,6 +34,13 @@ If a future change copies or adapts Quorum GPL source, it must:
 
 ## Review policy
 
+White-label builds have a separate branding drift gate. After any upstream
+refresh, run `pnpm --dir apps/farcaster-web branding:check` and review new names,
+changed source strings, and hashes for overridden source files/assets before
+enabling the branded build. Follow
+[`whitelabel/README.md`](../apps/farcaster-web/whitelabel/README.md); never
+regenerate the catalogue or replace the owner's resource copies automatically.
+
 - Dependency, wallet, authentication, signing, API-origin, and deployment
   changes always require a human reviewer.
 - CI must pass before merge.

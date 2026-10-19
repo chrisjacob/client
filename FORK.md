@@ -42,6 +42,20 @@ routing, authentication compatibility, wallet safety policy, and deployment
 configuration. Search for imports from `~/fork/` or `forkFeatureFlags` to find
 the optional feature integration points in upstream UI code.
 
+## White-label identity
+
+`VITE_10X_FEATURE_WHITELABEL=false` is an independent build-time identity
+switch. It is deliberately unaffected by `VITE_10X_FEATURES` so a product-feature
+rollback cannot accidentally publish upstream branding. Editable names, the
+reviewed string catalogue, full legal/support/landing pages, and copied image/
+video resources live under `apps/farcaster-web/whitelabel/`.
+
+Start with [`whitelabel/README.md`](apps/farcaster-web/whitelabel/README.md).
+The starter values reproduce current upstream content; customize them before
+enabling the switch. Run `pnpm --dir apps/farcaster-web branding:check` after
+upstream merges. The architectural analysis and implementation plan are in
+[`docs/WHITELABEL_PLAN.md`](docs/WHITELABEL_PLAN.md).
+
 ## Local development
 
 ```bash

@@ -1,14 +1,21 @@
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import { loadEnv } from 'vite';
+import { flagEnabled, loadBranding } from './whitelabel/core.mjs';
 
 const appDirectory = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
 );
-const distDirectory = path.join(appDirectory, 'dist');
+const distDirectory = path.resolve(appDirectory, process.argv[2] || 'dist');
+const environment = loadEnv('production', appDirectory, '');
 const canonicalUrl = (
-  process.env.VITE_CANONICAL_URL || 'https://10x.social'
+  environment.VITE_CANONICAL_URL ||
+  (flagEnabled(environment.VITE_10X_FEATURE_WHITELABEL)
+    ? loadBranding().config.siteUrl
+    : 'https://10x.social')
 ).replace(/\/$/, '');
 
 const rewriteSitemapHost = (directory) => {

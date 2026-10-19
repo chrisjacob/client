@@ -3,6 +3,8 @@
  *
  * Keep fork-only product switches here so upstream refreshes have a single,
  * obvious customization boundary. VITE_ values are public browser config.
+ * The independent identity flag VITE_10X_FEATURE_WHITELABEL is resolved by
+ * fork/whiteLabel.ts and the Vite adapter, outside this optional-feature master.
  */
 const parseBooleanFeatureFlag = (
   value: string | undefined,

@@ -1,0 +1,17 @@
+{
+  "appName": "Farcaster",
+  "shortName": "Farcaster",
+  "description": "A decentralized social network",
+  "companyName": "Neynar",
+  "legalEntity": "Neynar, Inc.",
+  "contactEmail": "team+contact@neynar.com",
+  "websiteHost": "farcaster.xyz",
+  "siteUrl": "https://10x.social",
+  "socialHandle": "@farcaster_xyz",
+  "farcasterHandle": "@farcaster",
+  "supportEmail": "support+web@neynar.com",
+  "logoUrl": "/brand/logo.svg",
+  "filledLogoUrl": "/brand/filled-logo.svg",
+  "wordmarkUrl": "/brand/wordmark.svg",
+  "manifestDescription": "A sufficiently decentralized social network."
+}

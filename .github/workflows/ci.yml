@@ -30,5 +30,14 @@ jobs:
           --filter farcaster-cryptography-web
           --filter farcaster-client-hooks build
       - run: pnpm --dir apps/farcaster-web typecheck
+      - name: Check white-label catalogue and replacement modules
+        run: |
+          pnpm --dir apps/farcaster-web branding:check
+          pnpm --dir apps/farcaster-web branding:typecheck
+          pnpm --dir apps/farcaster-web branding:test
       - run: pnpm --dir apps/farcaster-web test
       - run: pnpm --dir apps/farcaster-web build
+      - name: Build white-label variant
+        env:
+          VITE_10X_FEATURE_WHITELABEL: 'true'
+        run: pnpm --dir apps/farcaster-web build

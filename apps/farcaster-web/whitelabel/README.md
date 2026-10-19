@@ -1,0 +1,208 @@
+# Edit the web client's identity here
+
+The feature is **off by default**. These files start with the current client's
+names, legal text, images, and video so you can see what you are replacing.
+Editing this directory does not modify the upstream originals. No deployment
+has been performed.
+
+## Start tomorrow
+
+1. Edit `brand.json`. Change `appName` and `shortName` to `10X`, set your company
+   and legal entity, website, contact/support addresses, and social accounts.
+   Empty `socialHandle` / `farcasterHandle` omits those metadata tags. The
+   existing `VITE_CANONICAL_URL` environment setting takes precedence over
+   `siteUrl`; `VITE_BRAND_NAME` is used only when white-labeling is off.
+2. Replace the files under `resources/public/`. See the table below. Keep a
+   filename to replace it in place, or change its `replacement` in
+   `resources.json` to a new filename. Match the target file's format and image
+   dimensions; e.g. PNG contents for a `.png` target. For an SVG-to-PNG logo
+   change, add a PNG public mapping and point `logoUrl` at its target URL.
+3. Edit the complete Terms, Privacy, Support, Delete Account, and landing-page
+   copies under `resources/source/`. The untouched upstream versions remain
+   available under `src/` for comparison. Their exports must keep the original
+   names. Use `~/` imports when adding dependencies to copied pages.
+4. Review `strings.json` for specific copy changes. Search by `source` or
+   `file`. `source` shows the current original text; edit **`value`**, not
+   `source`, `file`, `kind`, or `count` during ordinary brand customization.
+5. Put `VITE_10X_FEATURE_WHITELABEL=true` in `.env.local` (or the public
+   environment settings of your build), then validate and rebuild:
+
+   ```sh
+   pnpm branding:check
+   pnpm branding:test
+   pnpm branding:typecheck
+   pnpm build
+   ```
+
+Run those commands from `apps/farcaster-web`, or prefix each with
+`pnpm --dir apps/farcaster-web`. `pnpm start` serves the same replacements during
+development; edits in this directory restart Vite. If changing an environment
+file, restart development yourself. Existing installed PWAs and cached social
+previews may retain old icons until the browser/platform refreshes them.
+
+The flag is deliberately independent of `VITE_10X_FEATURES`: turning off
+animated avatars or media features must not change the published identity.
+Rollback is `VITE_10X_FEATURE_WHITELABEL=false` plus a rebuild. That restores
+the current fork's branding behavior (including its existing 10X metadata),
+not a pristine copy of every upstream product decision.
+
+## Brand values and strings
+
+`brand.json` contains public strings, never secrets. To change only the app
+name, edit `appName` and `shortName`; reviewed app references use `{{appName}}`.
+Company and legal placeholders are separate so the app, trading name, and
+legal entity can differ. `description` supplies default runtime metadata;
+`manifestDescription` supplies the PWA description.
+Canonical page metadata on the exact `farcaster.xyz` / `warpcast.com` origins is
+rebased to your configured site. This adapter applies only to page metadata;
+external navigation, API calls, mobile deep links, and wallet export stay intact.
+
+A catalogue entry looks like this:
+
+```json
+{
+  "file": "src/pages/homeFeed/HomeFeedPage.tsx",
+  "kind": "literal",
+  "source": "Farcaster / Home",
+  "count": 2,
+  "category": "app",
+  "value": "{{appName}} / Home"
+}
+```
+
+The actual `count` in the checked-in catalogue is the authority. You can use
+plain replacement text, including an empty string, instead of placeholders.
+Replacement values are escaped as data. Template-expression values, user
+names, posts, server responses, and third-party mini-app text are untouched.
+This is a branding catalogue, not a complete localization system for every
+sentence in the app.
+
+Categories:
+
+| Category | Meaning |
+| --- | --- |
+| `app` | Presentation supplied by this web fork; editable. |
+| `legal` | Starter legal document strings; editable, or replace the whole page. |
+| `preserve` | Protocol, technical contract, external product, official mobile app, reward, or source-data identity. Reason is recorded per entry. |
+| `override` | An intentional reviewed departure from a preserved value. |
+
+Preserved entries cannot be edited accidentally: the loader rejects a changed
+`value` until you explicitly change the category to `override`. Inspect the
+call site first. Some strings are compared against incoming data or build
+asset names even when they look like a label. For a different string in the
+same file and syntax kind, add a new explicit catalogue entry; edits to `src/`
+branding are detected by the audit. Whole-page overrides are often clearer
+when behavior or substantial copy also needs to change.
+
+## Resources you can replace
+
+| Editable resource | Where it appears |
+| --- | --- |
+| `brand-logo.svg` | Central Logo component, standalone/auth headers, cast image exports. |
+| `brand-filled-logo.svg` | Filled sidebar logo. |
+| `brand-wordmark.svg` | Landing-page inline wordmark replacement. |
+| `favicon-v3.png` | Browser tab and branded wallet connection icon. |
+| `favicon-notifications-v3.png` | Browser tab with unread notifications. |
+| `og-logo-v3.png` | Apple touch icon. |
+| `opengraph.png` | Default branded social-preview image. |
+| `512x512-v2.png`, `1024x1024-v2.png`, `256x256-v2.png` | Install icons and existing public image consumers. |
+| `brand/farcaster-icon.svg`, `brand/farcaster-combo.svg` | Logo context-menu downloads (independent of displayed logo files). |
+| `referral-info-splash.png` | Existing referral artwork. |
+| `landing-video.mp4` | Branded landing-page video; copied original contains upstream UI. |
+| `manifest.json` | Full PWA manifest; only explicit string placeholders expand. |
+
+Every mapping has a `target` (the web app's original module or public path) and
+`replacement` (the editable file relative to this directory). A new public
+target also specifies `upstream`, identifying the source from which its starter
+was derived. `upstreamSha256` describes the original, **not** your replacement.
+Do not update it when you change your own content.
+
+For example, to use `brand-logo.png`, save it in `resources/public/`, change the
+logo mapping's target to `public/brand/logo.png` and its replacement to
+`resources/public/brand-logo.png`, then set `logoUrl` to `/brand/logo.png`.
+Keep that mapping's `upstream` and `upstreamSha256`. Apply the same pattern for
+`filledLogoUrl` and `wordmarkUrl`. Empty logo URL values fall back to the copied
+inline SVGs; custom images use their own colors (the original `fill` prop does
+not recolor a PNG/SVG image).
+
+Public overlays use the original URL paths in both Vite development and the
+production output. The actual upstream `public/` files are never overwritten.
+Alternate source/public copies are outside `public/` and are not published by
+disabled builds. Source overrides support JS/TS/JSX/TSX, CSS, and JSON modules;
+place replacement binary media in a public mapping and reference its URL from
+an overridden source file, as the starter landing video does.
+
+## Full legal documents and large sections
+
+`TermsOfUsePage.tsx` and `PrivacyPolicyPage.tsx` are full editable copies,
+including all headings, paragraphs, links, dates, and clauses. Unchanged
+paragraphs pick up the reviewed company/entity/app/contact substitutions from
+the catalogue. Edit entire sections directly to describe your actual service.
+
+If you change a paragraph's wording, it no longer matches its original
+catalogue entry. Write your desired final name directly, or use an explicit
+placeholder **inside a JSX string expression**:
+
+```tsx
+<Para>{'{{legalEntity}} operates {{appName}}. Contact {{contactEmail}}.'}</Para>
+<ExternalLink href={'mailto:{{contactEmail}}'} title="Contact us">
+  {'{{contactEmail}}'}
+</ExternalLink>
+```
+
+Do not put bare `{{appName}}` in JSX text: JSX interprets braces as JavaScript.
+Placeholders are also supported in ordinary string literals and static template
+segments inside replacement source modules. Unknown placeholders fail the build.
+There is no automatic rewrite of arbitrary original text outside the catalogue.
+
+Changing the company name does not update legal substance. The starters still
+include upstream jurisdiction, arbitration, mobile permissions, processing,
+account deletion, contact addresses, and service claims. In particular, the
+deletion page currently describes a request to the upstream operator. Review
+those sections together with your actual data flows and support handling.
+
+## Upstream rebranding / replacement snapshots
+
+`branding:check` is read-only and runs in CI even while the feature is off.
+Enabled builds also run the audit before compiling. It detects:
+
+- New/missing/changed occurrences of the tracked brand words in web JSX,
+  strings, and template segments, including their lowercase URL/identifier forms.
+- Changed occurrence counts (a newly reused string needs review).
+- Changed or removed original files behind resource overrides.
+- Missing replacements, duplicate mappings, invalid paths, and unknown placeholders.
+
+Matching uses file + syntax kind + source value, not line numbers. JSX layout
+whitespace is normalized; file hashes normalize CRLF/LF for text. Moving a
+paragraph or changing line endings should not demand a brand redesign.
+
+After an upstream merge:
+
+1. Run `pnpm branding:check` and `pnpm branding:inventory`. The latter prints
+   current candidates; it never overwrites `strings.json` or your resources.
+2. Review new/changed strings. Carry your `value` forward to the revised
+   `source`, update `count` if appropriate, and record why external identities
+   should remain. Removed/renamed files require updating the mapping/export too.
+3. Compare changed original resources with your replacements. Port fixes and
+   legal/content changes deliberately; retain your own edits. Update only the
+   corresponding original hash after review. Get the normalized hash with:
+
+   ```sh
+   node scripts/whitelabel/audit.mjs --hash src/pages/termsOfUse/TermsOfUsePage.tsx
+   ```
+
+4. Run audit, both type checks, tests, and a branded production build. Inspect
+   landing/login, navigation, profile/cast titles, notification favicon, brand
+   downloads, install metadata, legal/support pages, and cast image export.
+
+The scanner recognizes Farcaster, Warpcast, Neynar, Merkle, Network State,
+Network School, and the existing 10X Social label. An entirely new upstream
+name or embedded text in an untracked image/video still needs human review;
+extend `brandPattern` and the resource list when that happens. The audit does
+not prove that a remote API, SDK widget, or mini app will never show another
+brand. Original signed manifests, protocol fields, authentication statements,
+API domains, and wallet-export origins must remain compatible.
+
+Native apps and `farcaster-ssr` would need separate platform adapters if the
+fork starts shipping them. Ownership/licensing context and architectural
+tradeoffs are in `docs/WHITELABEL_PLAN.md` at the repository root.

@@ -97,6 +97,10 @@
     "zod": "^4.3.6"
   },
   "scripts": {
+    "branding:check": "node scripts/whitelabel/audit.mjs",
+    "branding:inventory": "node scripts/whitelabel/audit.mjs --inventory",
+    "branding:test": "node --test scripts/whitelabel/branding.node-test.mjs",
+    "branding:typecheck": "tsc -p tsconfig.whitelabel.json --noEmit",
     "validate-sitemaps": "node scripts/validateSitemaps.mjs",
     "sync-sitemap-index": "node scripts/syncSitemapIndex.mjs",
     "dev": "pnpm sync-sitemap-index && vite",

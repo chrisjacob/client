@@ -4,6 +4,7 @@ import { FC, memo, useEffect } from 'react';
 
 import { useStandaloneMode } from '~/contexts/StandaloneModeProvider';
 import { forkConfig } from '~/fork/config';
+import { brandPageCanonical, whiteLabel } from '~/fork/whiteLabel';
 
 export type PageMetaProps = {
   title: string;
@@ -17,14 +18,18 @@ export type PageMetaProps = {
   author?: string;
 };
 
-const DEFAULT_DESCRIPTION = 'A decentralized social network';
+const DEFAULT_DESCRIPTION = whiteLabel.enabled
+  ? whiteLabel.description
+  : 'A decentralized social network';
 
 const PageMeta: FC<PageMetaProps> = memo(
   ({
     title,
     description = DEFAULT_DESCRIPTION,
     canonical,
-    ogImage,
+    ogImage = whiteLabel.enabled
+      ? `${forkConfig.canonicalUrl}/opengraph.png`
+      : undefined,
     ogImageWidth,
     ogImageHeight,
     ogType = 'website',
@@ -47,6 +52,11 @@ const PageMeta: FC<PageMetaProps> = memo(
       typeof notificationsCount !== 'undefined' && notificationsCount !== 0
         ? '/favicon-notifications-v3.png'
         : '/favicon-v3.png';
+
+    const pageCanonical =
+      canonical && whiteLabel.enabled
+        ? brandPageCanonical(canonical, forkConfig.canonicalUrl)
+        : canonical;
 
     return (
       <Helmet>
@@ -71,7 +81,7 @@ const PageMeta: FC<PageMetaProps> = memo(
           <meta property="og:image:height" content={ogImageHeight.toString()} />
         )}
         <meta property="og:type" content={ogType} />
-        {canonical && <meta property="og:url" content={canonical} />}
+        {pageCanonical && <meta property="og:url" content={pageCanonical} />}
         <meta property="og:site_name" content={forkConfig.brandName} />
 
         {/* Twitter Card */}
@@ -81,13 +91,27 @@ const PageMeta: FC<PageMetaProps> = memo(
           <meta name="twitter:description" content={description} />
         )}
         {ogImage && <meta name="twitter:image" content={ogImage} />}
-        <meta name="twitter:site" content="@farcaster_xyz" />
+        {(!whiteLabel.enabled || whiteLabel.socialHandle) && (
+          <meta
+            name="twitter:site"
+            content={
+              whiteLabel.enabled ? whiteLabel.socialHandle : '@farcaster_xyz'
+            }
+          />
+        )}
 
         {/* Farcaster-specific */}
-        <meta name="farcaster:fname" content="@farcaster" />
+        {(!whiteLabel.enabled || whiteLabel.farcasterHandle) && (
+          <meta
+            name="farcaster:fname"
+            content={
+              whiteLabel.enabled ? whiteLabel.farcasterHandle : '@farcaster'
+            }
+          />
+        )}
 
         {/* Links */}
-        {canonical && <link rel="canonical" href={canonical} />}
+        {pageCanonical && <link rel="canonical" href={pageCanonical} />}
         <link
           rel="sitemap"
           href={`${forkConfig.canonicalUrl}/sitemap.xml`}

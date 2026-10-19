@@ -1,7 +1,10 @@
+import { whiteLabel } from './whiteLabel';
+
 export type ForkWalletMode = 'external-only';
 
 const canonicalUrl = (
-  import.meta.env.VITE_CANONICAL_URL || 'https://10x.social'
+  import.meta.env.VITE_CANONICAL_URL ||
+  (whiteLabel.enabled ? whiteLabel.siteUrl : 'https://10x.social')
 ).replace(/\/$/, '');
 
 /**
@@ -12,8 +15,11 @@ const canonicalUrl = (
  * public build-time configuration and must never contain secrets.
  */
 const forkConfig = {
-  brandName: import.meta.env.VITE_BRAND_NAME || '10X Social',
+  brandName: whiteLabel.enabled
+    ? whiteLabel.appName
+    : import.meta.env.VITE_BRAND_NAME || '10X Social',
   canonicalUrl,
+  walletIconPath: whiteLabel.enabled ? '/favicon-v3.png' : '/favicon.ico',
   walletMode: 'external-only' as ForkWalletMode,
   walletConnectProjectId:
     import.meta.env.VITE_WALLETCONNECT_PROJECT_ID?.trim() || undefined,

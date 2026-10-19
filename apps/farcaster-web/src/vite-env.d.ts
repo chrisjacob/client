@@ -4,6 +4,8 @@ interface ImportMetaEnv {
   readonly VITE_RELEASE_ID?: string;
   readonly VITE_BRAND_NAME?: string;
   readonly VITE_CANONICAL_URL?: string;
+  /** Independent build identity switch; unaffected by VITE_10X_FEATURES. */
+  readonly VITE_10X_FEATURE_WHITELABEL?: string;
   /** Master switch for optional 10X product features. */
   readonly VITE_10X_FEATURES?: string;
   /** Enables animated profile avatars across the 10X web client. */
@@ -19,3 +21,7 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+declare const __WHITELABEL__:
+  | import('./fork/whiteLabel').WhiteLabelBrand
+  | { enabled: false };

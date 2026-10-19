@@ -1,0 +1,121 @@
+{
+  "public": [
+    {
+      "target": "public/favicon-v3.png",
+      "replacement": "resources/public/favicon-v3.png",
+      "upstreamSha256": "6e4c8f6d8ccd58e662afe4738e4c688bc025e5662ce251732912d1ee4d94ac54"
+    },
+    {
+      "target": "public/favicon-notifications-v3.png",
+      "replacement": "resources/public/favicon-notifications-v3.png",
+      "upstreamSha256": "469b58f774f4d6fdc1cfa82fd2d3b220286a11190f2ec5982023167d1671b006"
+    },
+    {
+      "target": "public/og-logo-v3.png",
+      "replacement": "resources/public/og-logo-v3.png",
+      "upstreamSha256": "65ff64b956bb1d02497cbecda711478c60b73cba1f3d22149948965b1ffd3dba"
+    },
+    {
+      "target": "public/opengraph.png",
+      "replacement": "resources/public/opengraph.png",
+      "upstreamSha256": "fa20a66e9497b20c5286cf3e8cda7172cbb1f5632660b28e2207b5e40be03783"
+    },
+    {
+      "target": "public/1024x1024-v2.png",
+      "replacement": "resources/public/1024x1024-v2.png",
+      "upstreamSha256": "69d9c2357137685defa7b1f92919c7341b1fb25385070aa397f58689c5525a09"
+    },
+    {
+      "target": "public/512x512-v2.png",
+      "replacement": "resources/public/512x512-v2.png",
+      "upstreamSha256": "e3ca2981c83b7a2db13399f5bdd5f53fff4a56b1397bceeabee4fb185b7e7d28"
+    },
+    {
+      "target": "public/256x256-v2.png",
+      "replacement": "resources/public/256x256-v2.png",
+      "upstreamSha256": "27ac96f18cfaf060039e7ae4bd59cf13057a1022f6fa8903995565d94d2055f7"
+    },
+    {
+      "target": "public/referral-info-splash.png",
+      "replacement": "resources/public/referral-info-splash.png",
+      "upstreamSha256": "7e4b3a8dfee35a08353f047d8694a4bbb0a50cd32c440d8bcede18ad0bb4bda2"
+    },
+    {
+      "target": "public/brand/farcaster-icon.svg",
+      "replacement": "resources/public/brand/farcaster-icon.svg",
+      "upstreamSha256": "5d79789b023336e33330dfe9cef7a13f80e206c0057d927b809d24531e885cc9"
+    },
+    {
+      "target": "public/brand/farcaster-combo.svg",
+      "replacement": "resources/public/brand/farcaster-combo.svg",
+      "upstreamSha256": "ac70bef4252ab833bbad44183bab311a1d29610a285e009c9ac3802625f176da"
+    },
+    {
+      "target": "public/manifest.json",
+      "replacement": "resources/public/manifest.json",
+      "upstreamSha256": "b338b4113f9d9451a1d873f0c7bb7f52e9e7ac04d256506558848e8da444ee26",
+      "template": true
+    },
+    {
+      "target": "public/brand/logo.svg",
+      "replacement": "resources/public/brand-logo.svg",
+      "upstream": "src/components/Logo.tsx",
+      "upstreamSha256": "102daa057af217d8986c2da33d5f77c4a384126f2a11492bf825b848f5cc120f"
+    },
+    {
+      "target": "public/brand/filled-logo.svg",
+      "replacement": "resources/public/brand-filled-logo.svg",
+      "upstream": "src/components/FilledLogo.tsx",
+      "upstreamSha256": "2a6b52a0f01e16c3c6d6ca0ebed0a7cf4d9384d4f11e53d1544c64a1715a3c38"
+    },
+    {
+      "target": "public/brand/wordmark.svg",
+      "replacement": "resources/public/brand-wordmark.svg",
+      "upstream": "src/pages/homeLanding/HomeLandingPage.tsx",
+      "upstreamSha256": "7c742b23ccb213696207dc8a7b82d437e25dec332567f77f7099b4a5260e44d1"
+    },
+    {
+      "target": "public/brand/landing-video.mp4",
+      "replacement": "resources/public/landing-video.mp4",
+      "upstream": "src/pages/homeLanding/LandingVideo.mp4",
+      "upstreamSha256": "552cdc3588ef89e1408f6e90abd820002d835be657314b8ce83e76889f45b778"
+    }
+  ],
+  "source": [
+    {
+      "target": "src/pages/termsOfUse/TermsOfUsePage.tsx",
+      "replacement": "resources/source/TermsOfUsePage.tsx",
+      "upstreamSha256": "380eda3d0d3dc7f9b4a507e48f43324121897bdf6a066af1cf573d0d76e127a1"
+    },
+    {
+      "target": "src/pages/privacyPolicy/PrivacyPolicyPage.tsx",
+      "replacement": "resources/source/PrivacyPolicyPage.tsx",
+      "upstreamSha256": "1e3129a07c5914bf255b0d1f687f3d96599226cc2d8543dd2963b83939facc17"
+    },
+    {
+      "target": "src/components/Logo.tsx",
+      "replacement": "resources/source/Logo.tsx",
+      "upstreamSha256": "102daa057af217d8986c2da33d5f77c4a384126f2a11492bf825b848f5cc120f"
+    },
+    {
+      "target": "src/components/FilledLogo.tsx",
+      "replacement": "resources/source/FilledLogo.tsx",
+      "upstreamSha256": "2a6b52a0f01e16c3c6d6ca0ebed0a7cf4d9384d4f11e53d1544c64a1715a3c38"
+    },
+    {
+      "target": "src/pages/homeLanding/HomeLandingPage.tsx",
+      "replacement": "resources/source/HomeLandingPage.tsx",
+      "upstreamSha256": "7c742b23ccb213696207dc8a7b82d437e25dec332567f77f7099b4a5260e44d1"
+    },
+    {
+      "target": "src/pages/support/SupportPage.tsx",
+      "replacement": "resources/source/SupportPage.tsx",
+      "upstreamSha256": "a99bee80c252086d19e2b526a867d56806bebf407ae83140e88349050c6c464a"
+    },
+    {
+      "target": "src/pages/support/DeleteAccountPage.tsx",
+      "replacement": "resources/source/DeleteAccountPage.tsx",
+      "upstreamSha256": "51a40d609f49fec8c4ee080891640114cb0d64845a6c32a9ad05bd24a35509c0"
+    }
+  ]
+}

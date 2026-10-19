@@ -1,7 +1,7 @@
+import { injected } from '@wagmi/core';
 import { robinhood } from 'farcaster-client-data';
 import { bsc, degen, monadTestnet, unichain } from 'viem/chains';
 import { Config, createConfig, http, Transport } from 'wagmi';
-import { injected } from '@wagmi/core';
 import {
   arbitrum,
   arbitrumSepolia,
@@ -59,7 +59,7 @@ const connectors = [
             name: forkConfig.brandName,
             description: 'External wallet connection for 10X Social',
             url: forkConfig.canonicalUrl,
-            icons: [`${forkConfig.canonicalUrl}/favicon.ico`],
+            icons: [`${forkConfig.canonicalUrl}${forkConfig.walletIconPath}`],
           },
         }),
       ]

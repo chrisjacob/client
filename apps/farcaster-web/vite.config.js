@@ -5,6 +5,7 @@ import path from 'path';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { existsSync, readFileSync } from 'fs';
+import { whiteLabelPlugin } from './scripts/whitelabel/vitePlugin.mjs';
 
 const httpsEnabled = process.env.HTTPS !== 'false';
 const relayRequestHeadersToRemove = [
@@ -49,7 +50,7 @@ function readDevVar(name, fileName) {
 }
 
 export default defineConfig(({ mode }) => {
-  const environment = loadEnv(mode, process.cwd(), '');
+  const environment = loadEnv(mode, __dirname, '');
   const legacyVarsFile =
     mode === 'production' ? '.dev.vars.production' : '.dev.vars.local';
   // KLIPY requires the end-user client to call its API directly. This value is
@@ -72,6 +73,7 @@ export default defineConfig(({ mode }) => {
         JSON.stringify(klipyPickerEnabled),
     },
     plugins: [
+      whiteLabelPlugin(environment),
       react(),
       tailwindcss(),
       nodePolyfills({
