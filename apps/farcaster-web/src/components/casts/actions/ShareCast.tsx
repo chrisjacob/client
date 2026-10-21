@@ -2,7 +2,7 @@ import { ImageIcon, LinkIcon, MailIcon } from '@primer/octicons-react';
 import * as Popover from '@radix-ui/react-popover';
 import classNames from 'classnames';
 import { AnalyticsEvent } from 'farcaster-analytics';
-import { ApiCast, ApiFrame, getCastURL } from 'farcaster-client-data';
+import { ApiCast, ApiFrame } from 'farcaster-client-data';
 import {
   CastClickType,
   convertCastToCastShareContext,
@@ -20,6 +20,7 @@ import { MenuItem } from '~/components/popovers/MenuItem';
 import { useAnalytics } from '~/contexts/AnalyticsProvider';
 import { useMinimizableWindowContext } from '~/contexts/MinimizableWindowProvider';
 import { useUserAppContext } from '~/contexts/UserAppContextProvider';
+import { getPublicCastURL } from '~/fork/publicLinks';
 import { useCurrentUser } from '~/hooks/data/useCurrentUser';
 import { useIsSignedIn } from '~/hooks/data/useIsSignedIn';
 import { toast } from '~/utils/toast';
@@ -184,7 +185,7 @@ const ShareCast: React.FC<CastActionProps> = React.memo(({ cast }) => {
 
       e.stopPropagation();
 
-      const castURL = getCastURL({
+      const castURL = getPublicCastURL({
         castUsername: cast.author.username,
         castHash: cast.hash,
       });

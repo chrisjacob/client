@@ -7,6 +7,7 @@ import test from 'node:test';
 import { spawnSync } from 'node:child_process';
 import {
   appRoot,
+  brandThemeCss,
   auditBranding,
   brandRoot,
   entryKey,
@@ -358,6 +359,10 @@ test('deployment sitemaps use the same canonical environment override as the bra
       path.join(directory, 'sitemap.xml'),
       '<url><loc>https://farcaster.xyz/example</loc></url>',
     );
+    writeFileSync(
+      path.join(directory, 'robots.txt'),
+      'Sitemap: https://farcaster.xyz/sitemap.xml\n',
+    );
     const result = spawnSync(
       process.execPath,
       ['scripts/prepareDeployment.mjs', directory],
@@ -376,7 +381,49 @@ test('deployment sitemaps use the same canonical environment override as the bra
       readFileSync(path.join(directory, 'sitemap.xml'), 'utf8'),
       /https:\/\/brand.example\/example/,
     );
+    assert.equal(
+      readFileSync(path.join(directory, 'robots.txt'), 'utf8'),
+      'Sitemap: https://brand.example/sitemap.xml\n',
+    );
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
+});
+
+test('green theme keeps readable action and brand text contrast in both modes', () => {
+  const luminance = (hex) => {
+    const rgb = hex
+      .slice(1)
+      .match(/../g)
+      .map((v) => parseInt(v, 16) / 255)
+      .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+  };
+  const contrast = (a, b) =>
+    (Math.max(luminance(a), luminance(b)) + 0.05) /
+    (Math.min(luminance(a), luminance(b)) + 0.05);
+  const { colors } = branding.config;
+  assert.ok(contrast(colors.light[4], colors.onActionLight) >= 4.5);
+  assert.ok(contrast(colors.dark[4], colors.onActionDark) >= 4.5);
+  assert.ok(contrast(colors.light[4], '#ffffff') >= 4.5);
+  assert.ok(contrast(colors.dark[4], '#101010') >= 4.5);
+  assert.match(brandThemeCss(branding.config), /--brand-dark-500:#4ade80/);
+  assert.throws(
+    () => brandThemeCss({ colors: { ...colors, light: ['red;}</style>'] } }),
+    /colours/,
+  );
+});
+
+test('10X release guard refuses disabled identity before any deployment command', () => {
+  const result = spawnSync(
+    process.execPath,
+    ['scripts/checkWhiteLabelRelease.mjs'],
+    {
+      cwd: appRoot,
+      env: { ...process.env, VITE_10X_FEATURE_WHITELABEL: 'false' },
+      encoding: 'utf8',
+    },
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /require VITE_10X_FEATURE_WHITELABEL=true/);
 });

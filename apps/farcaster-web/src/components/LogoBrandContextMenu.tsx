@@ -10,6 +10,8 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 
+import { whiteLabel } from '~/fork/whiteLabel';
+
 type Position = { x: number; y: number };
 
 type MenuItem = {
@@ -21,13 +23,19 @@ type MenuItem = {
 const MENU_ITEMS: MenuItem[] = [
   {
     label: 'Download logo as .svg',
-    href: '/brand/farcaster-icon.svg',
-    filename: 'farcaster-icon.svg',
+    href: whiteLabel.enabled ? whiteLabel.logoUrl : '/brand/farcaster-icon.svg',
+    filename: whiteLabel.enabled
+      ? `${whiteLabel.shortName.toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'brand'}-logo.svg`
+      : 'farcaster-icon.svg',
   },
   {
     label: 'Download wordmark as .svg',
-    href: '/brand/farcaster-combo.svg',
-    filename: 'farcaster-combo.svg',
+    href: whiteLabel.enabled
+      ? whiteLabel.wordmarkUrl
+      : '/brand/farcaster-combo.svg',
+    filename: whiteLabel.enabled
+      ? `${whiteLabel.shortName.toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'brand'}-wordmark.svg`
+      : 'farcaster-combo.svg',
   },
 ];
 

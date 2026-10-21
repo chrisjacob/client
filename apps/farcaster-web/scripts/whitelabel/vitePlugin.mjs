@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { URL } from 'node:url';
 import {
   appRoot,
@@ -82,6 +83,20 @@ export function whiteLabelPlugin(environment) {
           void server.restart();
       });
       server.middlewares.use((request, response, next) => {
+        if (request.url?.split('?')[0] === '/robots.txt') {
+          response.setHeader('Content-Type', 'text/plain');
+          response.setHeader('Cache-Control', 'no-store');
+          response.end(
+            readFileSync(
+              path.join(appRoot, 'public/robots.txt'),
+              'utf8',
+            ).replaceAll(
+              'https://farcaster.xyz/sitemap.xml',
+              `${branding.config.siteUrl}/sitemap.xml`,
+            ),
+          );
+          return;
+        }
         const resource = publicResources.get(request.url?.split('?')[0]);
         if (!resource) return next();
         response.setHeader('Content-Type', contentType(resource.target));

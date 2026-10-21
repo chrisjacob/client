@@ -13,6 +13,7 @@ import { DropdownMenuItem } from '~/components/dropdownMenu/DropdownMenuItem';
 import { ReportUserModal } from '~/components/modals/ReportUserModal';
 import { UserExtrasModal } from '~/components/modals/UserExtrasModal';
 import { UserVisibilityActions } from '~/components/popovers/UserVisibilityActions';
+import { getPublicProfileURL } from '~/fork/publicLinks';
 import { useCachedCurrentUser } from '~/hooks/data/useCachedCurrentUser';
 import { useIsAdmin } from '~/hooks/data/useIsAdmin';
 import { useNavigateToAdminEngagementRingCandidates } from '~/hooks/navigation/useNavigateToAdminEngagementRingCandidates';
@@ -40,9 +41,10 @@ const ProfileMenuActions: React.FC<ProfileMenuActionsProps> = ({
     (e: Event) => {
       e.stopPropagation();
 
-      const profileUri = user.username
-        ? `https://farcaster.xyz/${user.username}`
-        : `https://farcaster.xyz/~/profiles/${user.fid}`;
+      const profileUri = getPublicProfileURL({
+        username: user.username,
+        fid: user.fid,
+      });
 
       navigator.clipboard.writeText(profileUri);
     },

@@ -9,6 +9,8 @@ type WhiteLabelBrand = {
   logoUrl: string;
   filledLogoUrl: string;
   wordmarkUrl: string;
+  clientFid: number;
+  walletIconDataUrl: `data:image/${string}`;
 };
 
 // The disabled variant keeps existing behavior and also supports tests that do

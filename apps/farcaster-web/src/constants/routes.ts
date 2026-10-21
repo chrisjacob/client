@@ -6,6 +6,8 @@ import {
 } from 'farcaster-client-data';
 import { FeedSourceOn } from 'farcaster-client-hooks';
 
+import { ReferralsUnavailablePage } from '~/fork/ReferralsUnavailablePage';
+import { whiteLabel } from '~/fork/whiteLabel';
 import {
   AdminEngagementRingCandidatesPage,
   AdminFeedsComparisonPage,
@@ -847,7 +849,9 @@ const routes = {
     },
     search: {},
     family: family('invites'),
-    Component: ReferralWithoutUsernamePage,
+    Component: whiteLabel.enabled
+      ? ReferralsUnavailablePage
+      : ReferralWithoutUsernamePage,
   },
   referralWithUsername: {
     path: `/:username/referral`,
@@ -857,7 +861,9 @@ const routes = {
     },
     search: {},
     family: family('invites'),
-    Component: ReferralWithUsernamePage,
+    Component: whiteLabel.enabled
+      ? ReferralsUnavailablePage
+      : ReferralWithUsernamePage,
   },
   settingsAdvanced: {
     path: `${appSettingsPathPrefix}/advanced`,
@@ -1457,7 +1463,9 @@ const routes = {
       id: string;
     },
     family: family('default'),
-    Component: SignupForInvitePage,
+    Component: whiteLabel.enabled
+      ? ReferralsUnavailablePage
+      : SignupForInvitePage,
   },
   cloudflareChallenge: {
     path: `${appPathPrefix}/cloudflare-challenge/:id`,
@@ -1475,7 +1483,7 @@ const routes = {
     },
     search: {},
     family: family('default'),
-    Component: ReferralsPage,
+    Component: whiteLabel.enabled ? ReferralsUnavailablePage : ReferralsPage,
   },
   vanityReferralLandingPage: {
     path: `${appPathPrefix}/r/:username`,
@@ -1484,7 +1492,9 @@ const routes = {
     },
     search: {},
     family: family('default'),
-    Component: VanityReferralLandingPage,
+    Component: whiteLabel.enabled
+      ? ReferralsUnavailablePage
+      : VanityReferralLandingPage,
   },
   referralCodeJoinPage: {
     path: `${appPathPrefix}/referral-code/:code`,
@@ -1493,7 +1503,9 @@ const routes = {
     },
     search: {},
     family: family('default'),
-    Component: ReferralsJoinPage,
+    Component: whiteLabel.enabled
+      ? ReferralsUnavailablePage
+      : ReferralsJoinPage,
   },
   vanityReferralJoinPage: {
     path: `${appPathPrefix}/r/:username/join`,
@@ -1502,7 +1514,9 @@ const routes = {
     },
     search: {},
     family: family('default'),
-    Component: VanityReferralJoinPage,
+    Component: whiteLabel.enabled
+      ? ReferralsUnavailablePage
+      : VanityReferralJoinPage,
   },
   token: {
     path: `${appPathPrefix}/token/:ticker`,
@@ -1542,14 +1556,18 @@ const routes = {
     params: {},
     search: {},
     family: family('default'),
-    Component: ReferralsOverviewPage,
+    Component: whiteLabel.enabled
+      ? ReferralsUnavailablePage
+      : ReferralsOverviewPage,
   },
   referralsList: {
     path: `${appPathPrefix}/referrals/list`,
     params: {},
     search: {},
     family: family('default'),
-    Component: ReferralsListPage,
+    Component: whiteLabel.enabled
+      ? ReferralsUnavailablePage
+      : ReferralsListPage,
   },
   trendingTopic: {
     path: `${appPathPrefix}/trendingTopic/:topicId`,

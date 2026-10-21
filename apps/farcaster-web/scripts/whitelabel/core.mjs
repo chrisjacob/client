@@ -158,6 +158,12 @@ export function interpolate(value, config) {
 
 export function loadBranding(root = brandRoot) {
   const config = readJson(path.join(root, 'brand.json'));
+  if (!Number.isSafeInteger(config.clientFid) || config.clientFid <= 0) {
+    throw new Error(
+      'brand.json: clientFid must be a positive Farcaster account ID',
+    );
+  }
+  brandThemeCss(config);
   for (const key of [
     'appName',
     'shortName',
@@ -259,6 +265,20 @@ export function loadBranding(root = brandRoot) {
       throw new Error(`${key} must name a mapped public resource`);
   }
   const branding = { config, strings, resources, root };
+  const icon = resources.public.find(
+    (item) => item.target === `public${config.filledLogoUrl || config.logoUrl}`,
+  );
+  if (icon) {
+    const mime = {
+      '.svg': 'image/svg+xml',
+      '.png': 'image/png',
+      '.webp': 'image/webp',
+    }[path.extname(icon.target)];
+    if (!mime) throw new Error('Wallet brand icon must be SVG, PNG or WebP');
+    config.walletIconDataUrl = `data:${mime};base64,${resourceBytes(icon, branding).toString('base64')}`;
+  } else {
+    throw new Error('A mapped logo is required for Mini App wallet identity');
+  }
   for (const resource of [...resources.public, ...resources.source]) {
     if (resource.template) {
       if (!resource.replacement.endsWith('.json'))
@@ -369,6 +389,41 @@ export const escapeHtml = (value) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
+export function brandThemeCss(config) {
+  const colors = config.colors;
+  for (const mode of ['light', 'dark']) {
+    if (
+      !Array.isArray(colors?.[mode]) ||
+      colors[mode].length !== 10 ||
+      !colors[mode].every((value) => /^#[a-fA-F0-9]{6}$/.test(value))
+    ) {
+      throw new Error(
+        `brand.json: colors.${mode} must contain ten six-digit hex colours`,
+      );
+    }
+  }
+  for (const key of ['onActionLight', 'onActionDark']) {
+    if (!/^#[a-fA-F0-9]{6}$/.test(colors[key]))
+      throw new Error(`Invalid colors.${key}`);
+  }
+  const palette = ['light', 'dark']
+    .flatMap((mode) =>
+      colors[mode].map(
+        (value, i) => `--brand-${mode}-${(i + 1) * 100}:${value};`,
+      ),
+    )
+    .join('');
+  return `html{${palette}--brand-on-action:${colors.onActionLight};--brand-overlay:${colors.light[4]}66;--brand-overlay-hover:${colors.light[4]}b0;}
+html.dark{--brand-on-action:${colors.onActionDark};}
+html.dark .bg-action-primary:hover:not(:disabled){background-color:${colors.dark[5]};}
+html .bg-action-primary:not(:disabled),html .bg-brand,html.dark .bg-brand{color:var(--brand-on-action);}
+html .bg-action-primary:not(:disabled) .text-light,html .bg-brand .text-light{color:inherit;}
+html .landing-bg{background:linear-gradient(180deg,#0b5a1e 0%,#000 100%);}
+html .landing-btn-secondary-bg:hover{box-shadow:0 0 12px ${colors.dark[4]}66;}
+html .Toastify{--toastify-color-info:${colors.light[4]};}
+html.dark .Toastify{--toastify-color-info:${colors.dark[4]};}`;
+}
+
 export function transformBrandHtml(html, config) {
   const titled = html.replace(
     /<title>[^<]*<\/title>/,
@@ -394,7 +449,11 @@ export function transformBrandHtml(html, config) {
         `<meta ${attribute}="${key}" content="${escapeHtml(value)}" data-rh="true" />`,
     )
     .join('\n');
-  return titled.replace('</head>', () => `${metadata}\n</head>`);
+  return titled.replace(
+    '</head>',
+    () =>
+      `${metadata}\n<style id="whitelabel-theme">${brandThemeCss(config)}</style>\n</head>`,
+  );
 }
 
 export function resourceBytes(resource, branding) {

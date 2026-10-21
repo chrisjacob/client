@@ -28,6 +28,7 @@ import { useAnalytics } from '~/contexts/AnalyticsProvider';
 import { useCastComposerSession } from '~/contexts/CastComposerSessionProvider';
 import { useStandaloneMode } from '~/contexts/StandaloneModeProvider';
 import { useUserAppContext } from '~/contexts/UserAppContextProvider';
+import { whiteLabel } from '~/fork/whiteLabel';
 import { useCurrentUser } from '~/hooks/data/useCurrentUser';
 import { useIsSignedIn } from '~/hooks/data/useIsSignedIn';
 import { useCurrentUserProfileCastsLinkProps } from '~/hooks/navigation/useCurrentUserProfileCastsLinkProps';
@@ -295,13 +296,15 @@ const MobileNavDropdown: FC<MobileNavDropdownProps> = memo(
               isActive={active.directCasts}
               onClose={onClose}
             />
-            <DropdownItem
-              href={hrefs.referrals}
-              label="Referrals"
-              icon={<UserPlusIcon size={16} />}
-              isActive={active.referrals}
-              onClose={onClose}
-            />
+            {!whiteLabel.enabled && (
+              <DropdownItem
+                href={hrefs.referrals}
+                label="Referrals"
+                icon={<UserPlusIcon size={16} />}
+                isActive={active.referrals}
+                onClose={onClose}
+              />
+            )}
             <DropdownItem
               href={hrefs.saved}
               label="Saved"

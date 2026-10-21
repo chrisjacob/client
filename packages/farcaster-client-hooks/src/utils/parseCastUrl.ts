@@ -15,6 +15,29 @@ const SHORT_CAST_HASH_PREFIX_RE = /^0x[a-fA-F0-9]{8,39}$/i;
  */
 const USERNAME_SEGMENT_RE = /^[a-z0-9][a-z0-9.-]{0,63}$/i;
 
+const additionalCastPageOrigins = new Set<string>();
+
+/** A web host may register its own public URLs without changing protocol URLs. */
+function configureCastPageOrigins(origins: string[]): void {
+  const normalized = origins.map((origin) => {
+    const url = new URL(origin);
+    if (
+      !['https:', 'http:'].includes(url.protocol) ||
+      url.username ||
+      url.password
+    ) {
+      throw new Error('Cast page origins must be HTTP(S) without credentials');
+    }
+    return url.origin;
+  });
+  additionalCastPageOrigins.clear();
+  normalized.forEach((origin) => additionalCastPageOrigins.add(origin));
+}
+
+function getAdditionalCastPageOrigins(): string[] {
+  return [...additionalCastPageOrigins];
+}
+
 export type ParsedCastUrl =
   | {
       kind: 'username-and-hash';
@@ -36,6 +59,13 @@ function normalizeHashSegment(segment: string): string {
 /** Hosts whose `/{username}/{hash}` and `/~/conversations/{hash}` paths are cast pages. */
 function isCastPageHost(hostname: string): boolean {
   const host = hostname.toLowerCase();
+  if (
+    [...additionalCastPageOrigins].some(
+      (origin) => new URL(origin).hostname === host,
+    )
+  ) {
+    return true;
+  }
   if (host === 'farcaster.xyz' || host === 'warpcast.com') {
     return true;
   }
@@ -124,6 +154,8 @@ function toHashPrefix(hashSegment: string): CastHashPrefix {
 
 export {
   FULL_CAST_HASH_RE,
+  configureCastPageOrigins,
+  getAdditionalCastPageOrigins,
   isCastEmbedReference,
   isCastPageHost,
   isFullCastHash,

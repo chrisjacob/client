@@ -20,6 +20,7 @@ import { NavLinkIcon } from '~/components/links/NavLinkIcon';
 import { NavLinkLabel } from '~/components/links/NavLinkLabel';
 import { ChannelNavLinks } from '~/components/sidebar/ChannelNavLinks';
 import { useUserAppContext } from '~/contexts/UserAppContextProvider';
+import { whiteLabel } from '~/fork/whiteLabel';
 import { useCurrentUser } from '~/hooks/data/useCurrentUser';
 import { useCurrentUserProfileCastsLinkProps } from '~/hooks/navigation/useCurrentUserProfileCastsLinkProps';
 import { LeftSideBar } from '~/layouts/LeftSideBar';
@@ -105,19 +106,21 @@ const AuthedLeftSideBar: React.FC = React.memo(() => {
           <NavLinkLabel>Direct Casts</NavLinkLabel>
           <NavLinkBadge className="ml-4" count={inboxCount} subtle={false} />
         </NavLink>
-        <NavLink
-          to={'referrals'}
-          params={{}}
-          searchParams={{}}
-          title="Referrals"
-        >
-          <NavLinkIcon>
-            <div className="relative translate-y-[-0.75px]">
-              <UserPlusIcon size={20} />
-            </div>
-          </NavLinkIcon>
-          <NavLinkLabel>Referrals</NavLinkLabel>
-        </NavLink>
+        {!whiteLabel.enabled && (
+          <NavLink
+            to={'referrals'}
+            params={{}}
+            searchParams={{}}
+            title="Referrals"
+          >
+            <NavLinkIcon>
+              <div className="relative translate-y-[-0.75px]">
+                <UserPlusIcon size={20} />
+              </div>
+            </NavLinkIcon>
+            <NavLinkLabel>Referrals</NavLinkLabel>
+          </NavLink>
+        )}
         <NavLink to={'saved'} params={{}} searchParams={{}} title="Saved">
           <NavLinkIcon>
             <div className="relative translate-y-[-0.75px]">

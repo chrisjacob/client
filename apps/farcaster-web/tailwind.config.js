@@ -50,28 +50,28 @@ const gray = {
 
 const violet = {
   light: {
-    violet100: '#fbfaff',
-    violet200: '#f8f6ff',
-    violet300: '#eee9ff',
-    violet400: '#ddd4ff',
-    violet500: '#7959ff',
-    violet600: '#6c4fec',
-    violet700: '#5d42d6',
-    violet800: '#4a33ad',
-    violet900: '#39257f',
-    violet1000: '#271955',
+    violet100: 'var(--brand-light-100, #fbfaff)',
+    violet200: 'var(--brand-light-200, #f8f6ff)',
+    violet300: 'var(--brand-light-300, #eee9ff)',
+    violet400: 'var(--brand-light-400, #ddd4ff)',
+    violet500: 'var(--brand-light-500, #7959ff)',
+    violet600: 'var(--brand-light-600, #6c4fec)',
+    violet700: 'var(--brand-light-700, #5d42d6)',
+    violet800: 'var(--brand-light-800, #4a33ad)',
+    violet900: 'var(--brand-light-900, #39257f)',
+    violet1000: 'var(--brand-light-1000, #271955)',
   },
   dark: {
-    violet100: '#171320',
-    violet200: '#1b1429',
-    violet300: '#231a36',
-    violet400: '#2f204a',
-    violet500: '#866aff',
-    violet600: '#9a81ff',
-    violet700: '#b29eff',
-    violet800: '#cabfff',
-    violet900: '#e0d8ff',
-    violet1000: '#f2f0ff',
+    violet100: 'var(--brand-dark-100, #171320)',
+    violet200: 'var(--brand-dark-200, #1b1429)',
+    violet300: 'var(--brand-dark-300, #231a36)',
+    violet400: 'var(--brand-dark-400, #2f204a)',
+    violet500: 'var(--brand-dark-500, #866aff)',
+    violet600: 'var(--brand-dark-600, #9a81ff)',
+    violet700: 'var(--brand-dark-700, #b29eff)',
+    violet800: 'var(--brand-dark-800, #cabfff)',
+    violet900: 'var(--brand-dark-900, #e0d8ff)',
+    violet1000: 'var(--brand-dark-1000, #f2f0ff)',
   },
 };
 
@@ -813,7 +813,7 @@ module.exports = {
         ...bgColor({
           name: 'overlay-medium',
           light: '#d1d5db66',
-          dark: '#7C65C166',
+          dark: 'var(--brand-overlay, #7C65C166)',
         }),
         ...bgColor({
           name: 'overlay-faint',
@@ -862,9 +862,9 @@ module.exports = {
         ...bgColor({
           name: 'action-inverted',
           light: '#d1d5db66',
-          dark: '#7C65C166',
+          dark: 'var(--brand-overlay, #7C65C166)',
           lightHover: '#d0d1d2d0',
-          darkHover: '#7C65C1b0',
+          darkHover: 'var(--brand-overlay-hover, #7C65C1b0)',
         }),
         ...bgColor({
           name: 'action-secondary',
@@ -908,7 +908,7 @@ module.exports = {
         ...bgColor({
           name: 'cast-action-toast',
           light: '#ffffff',
-          dark: '#292034',
+          dark: 'var(--brand-dark-100, #292034)',
         }),
         ...bgColor({
           name: 'cast-action-error-toast',
@@ -1073,8 +1073,8 @@ module.exports = {
         }),
         ...textColor({
           name: 'action-primary-disabled',
-          light: '#DED9EF',
-          dark: '#6A6180',
+          light: 'var(--brand-light-300, #DED9EF)',
+          dark: 'var(--brand-dark-400, #6A6180)',
         }),
         ...textColor({
           name: 'action-tertiary-disabled',
@@ -1140,8 +1140,8 @@ module.exports = {
         }),
         ...textColor({
           name: 'focused-search-icon',
-          light: '#8565CB',
-          dark: '#8565CB',
+          light: 'var(--brand-light-500, #8565CB)',
+          dark: 'var(--brand-dark-500, #8565CB)',
         }),
         ...textColor({
           name: 'active-badge',
@@ -1196,8 +1196,8 @@ module.exports = {
         }),
         ...bgColor({
           name: 'direct-cast-channel-tag',
-          light: '#E9E7F9',
-          dark: '#473962',
+          light: 'var(--brand-light-200, #E9E7F9)',
+          dark: 'var(--brand-dark-300, #473962)',
         }),
         ...bgColor({
           name: 'self-reply-direct-cast',
@@ -1211,12 +1211,12 @@ module.exports = {
         }),
         ...bgColor({
           name: 'reply-direct-cast-left-wrapper',
-          light: '#7C65C1',
-          dark: '#8F7BCC',
+          light: 'var(--brand-light-500, #7C65C1)',
+          dark: 'var(--brand-dark-500, #8F7BCC)',
         }),
         ...textColor({
           name: 'self-direct-casts-timestamp',
-          light: '#7C65C1',
+          light: 'var(--brand-light-500, #7C65C1)',
           dark: text.dark.brand,
         }),
         ...textColor({

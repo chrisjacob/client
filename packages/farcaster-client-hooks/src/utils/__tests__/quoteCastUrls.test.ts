@@ -1,4 +1,7 @@
 import { ApiCastEmbeds, ApiQuoteCastEmbed } from 'farcaster-client-data';
+import { afterEach } from 'vitest';
+
+import { configureCastPageOrigins } from '../parseCastUrl';
 
 import {
   buildQuoteCastUrlSet,
@@ -10,6 +13,31 @@ const quote = {
   hash: '0x77f24c47ad9f0f1ce85ea6ecadf035f85d8b8ccc',
   author: { username: 'limone.eth' },
 } as ApiQuoteCastEmbed;
+
+afterEach(() => configureCastPageOrigins([]));
+
+it('recognises a configured client quote URL and suppresses its duplicate preview', () => {
+  configureCastPageOrigins(['https://10x.social']);
+  const quoteCastUrls = buildQuoteCastUrlSet({ quotes: [quote] });
+  expect(
+    isQuoteCastUrl({
+      url: `https://10x.social/limone.eth/${quote.hash.slice(0, 10)}`,
+      quoteCastUrls,
+    }),
+  ).toBe(true);
+  expect(
+    isQuoteCastUrl({
+      url: `https://10x.social/~/conversations/${quote.hash}`,
+      quoteCastUrls,
+    }),
+  ).toBe(true);
+  expect(
+    isQuoteCastUrl({
+      url: `https://evil.test/limone.eth/${quote.hash.slice(0, 10)}`,
+      quoteCastUrls,
+    }),
+  ).toBe(false);
+});
 
 describe('quoteCastUrls', () => {
   it('matches canonical farcaster cast URLs', () => {

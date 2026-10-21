@@ -3,7 +3,6 @@ import {
   type ApiCast,
   type ApiDirectCastMessageMetadata,
   type ApiUser,
-  getCastURL,
 } from 'farcaster-client-data';
 import {
   buildNonGroupConversationId,
@@ -25,6 +24,7 @@ import { Modal } from '~/components/modals/Modal';
 import { ShareCastAsDirectCastToast } from '~/components/toasts/ShareCastAsDirectCastToast';
 import { MAX_DIRECT_CAST_TEXT_LENGTH } from '~/constants/casts';
 import { useAnalytics } from '~/contexts/AnalyticsProvider';
+import { getPublicCastURL } from '~/fork/publicLinks';
 import { useCurrentUser } from '~/hooks/data/useCurrentUser';
 import { toast } from '~/utils/toast';
 
@@ -195,7 +195,7 @@ const ShareCastAsDirectCastModalContent: React.FC<
       MAX_NUM_SELECTED_TARGETS,
     );
 
-    const castURL = getCastURL({
+    const castURL = getPublicCastURL({
       castUsername: cast.author.username,
       castHash: cast.hash,
     });

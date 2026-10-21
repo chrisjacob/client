@@ -6,6 +6,8 @@ import {
   getDeprecatedCastURL,
 } from 'farcaster-client-data';
 
+import { getAdditionalCastPageOrigins } from './parseCastUrl';
+
 const normalizeUrl = (url: string) => {
   try {
     const parsed = new URL(url);
@@ -23,6 +25,15 @@ const buildQuoteCastUrlSet = ({ quotes }: { quotes: ApiQuoteCastEmbed[] }) => {
   const urlSet = new Set<string>();
 
   for (const quote of quotes) {
+    for (const origin of getAdditionalCastPageOrigins()) {
+      urlSet.add(`${origin}/~/conversations/${quote.hash}`);
+      if (quote.author?.username) {
+        urlSet.add(
+          `${origin}/${quote.author.username}/${quote.hash.slice(0, 10)}`,
+        );
+        urlSet.add(`${origin}/${quote.author.username}/${quote.hash}`);
+      }
+    }
     const canonicalConversationUrl = `https://farcaster.xyz/~/conversations/${quote.hash}`;
     const deprecatedConversationUrl = `https://warpcast.com/~/conversations/${quote.hash}`;
 

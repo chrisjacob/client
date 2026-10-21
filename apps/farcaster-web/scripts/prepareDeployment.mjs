@@ -34,3 +34,15 @@ const rewriteSitemapHost = (directory) => {
 };
 
 rewriteSitemapHost(distDirectory);
+
+const robotsPath = path.join(distDirectory, 'robots.txt');
+const { existsSync } = await import('node:fs');
+if (existsSync(robotsPath)) {
+  writeFileSync(
+    robotsPath,
+    readFileSync(robotsPath, 'utf8').replaceAll(
+      'https://farcaster.xyz/sitemap.xml',
+      `${canonicalUrl}/sitemap.xml`,
+    ),
+  );
+}

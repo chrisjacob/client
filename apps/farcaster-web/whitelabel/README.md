@@ -59,6 +59,27 @@ name, edit `appName` and `shortName`; reviewed app references use `{{appName}}`.
 Company and legal placeholders are separate so the app, trading name, and
 legal entity can differ. `description` supplies default runtime metadata;
 `manifestDescription` supplies the PWA description.
+`socialHandle` is the X account; `farcasterHandle` is the Farcaster account.
+`clientFid` is that client's numeric Farcaster identity, not the signed-in user.
+10X uses FID 1313340 (10xmeme.eth, checked against the public upstream API).
+Mini Apps receive this identity and the configured app name/logo in wallet
+discovery; the independent bridge retains compatibility with the Mini App SDK.
+
+`colors.light` and `colors.dark` each contain ten hex colours, from palette
+step 100 to 1000. Step 500 supplies the main brand colour. `onActionLight` and
+`onActionDark` supply contrasting action text. The HTML adapter sets palette
+variables; disabled builds keep the original Tailwind fallback colours.
+Public profile/cast shares use `siteUrl`; the app registers its canonical and
+current origins for quote parsing. Protocol embeds and auth URLs stay upstream.
+
+Referrals are temporarily unavailable in white-label mode: navigation is hidden
+and referral/invite routes redirect home before mounting queries or reward
+claims. This does not change upstream accounts or erase existing reward records.
+
+Both 10X deployment scripts check the identity flag and branding audit before
+building, then verify the generated identity before invoking deployment. Direct
+manual hosting uploads must apply the same checks. The build step alone does not
+deploy and still supports both branding variants for CI.
 Canonical page metadata on the exact `farcaster.xyz` / `warpcast.com` origins is
 rebased to your configured site. This adapter applies only to page metadata;
 external navigation, API calls, mobile deep links, and wallet export stay intact.

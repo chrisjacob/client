@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import {
+  configureCastPageOrigins,
   isCastEmbedReference,
   isFullCastHash,
   parseCastUrl,
@@ -8,6 +9,25 @@ import {
 
 const FULL_HASH = '0x615390402f842da885afa55601712c2d9ae21a1a';
 const SHORT_HASH = '0x61539040';
+
+afterEach(() => configureCastPageOrigins([]));
+
+it('recognises configured client URLs without trusting lookalike domains', () => {
+  configureCastPageOrigins(['https://10x.social', 'https://local.10x.social']);
+  expect(parseCastUrl(`https://10x.social/alice.eth/${SHORT_HASH}`).kind).toBe(
+    'username-and-hash',
+  );
+  expect(
+    parseCastUrl(`https://local.10x.social/~/conversations/${FULL_HASH}`).kind,
+  ).toBe('conversation-hash');
+  expect(
+    isCastEmbedReference(`https://10x.social/alice.eth/${SHORT_HASH}`),
+  ).toBe(true);
+  expect(
+    parseCastUrl(`https://10x.social.evil.test/alice/${SHORT_HASH}`).kind,
+  ).toBe('not-cast-url');
+  expect(() => configureCastPageOrigins(['javascript:alert(1)'])).toThrow();
+});
 
 describe('parseCastUrl', () => {
   it('parses username + short hash (farcaster.xyz)', () => {

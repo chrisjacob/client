@@ -110,6 +110,7 @@ import {
 } from '~/contexts/SignManifestProvider';
 import { SubordinateOpenableWarpcastWalletProvider } from '~/contexts/SubordinateOpenableWarpcastWalletProvider';
 import { useWallet, WalletProvider } from '~/contexts/WalletProvider';
+import { whiteLabel } from '~/fork/whiteLabel';
 import { useCurrentUser } from '~/hooks/data/useCurrentUser';
 import { useIsAdmin } from '~/hooks/data/useIsAdmin';
 import { useUserLevel } from '~/hooks/data/useUserLevel';
@@ -925,7 +926,7 @@ function InnerMiniAppContent({
         location: locationContext,
         client: {
           platformType: 'web',
-          clientFid: 9152,
+          clientFid: whiteLabel.enabled ? whiteLabel.clientFid : 9152,
           added: frame?.viewerContext?.favorited || false,
           notificationDetails: frame?.viewerContext?.notificationsEnabled
             ? frame?.viewerContext?.notificationDetails
@@ -958,12 +959,15 @@ function InnerMiniAppContent({
         emit?.({
           event: 'eip6963:announceProvider',
           info: {
-            name: 'Farcaster',
-            icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI1NiAyNTYiIGZpbGw9Im5vbmUiPjxyZWN0IHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2IiByeD0iNTYiIGZpbGw9IiM3QzY1QzEiPjwvcmVjdD48cGF0aCBkPSJNMTgzLjI5NiA3MS42OEgyMTEuOTY4TDIwNy44NzIgOTQuMjA4SDIwMC43MDRWMTgwLjIyNEwyMDEuMDIgMTgwLjIzMkMyMDQuMjY2IDE4MC4zOTYgMjA2Ljg0OCAxODMuMDgxIDIwNi44NDggMTg2LjM2OFYxOTEuNDg4TDIwNy4xNjQgMTkxLjQ5NkMyMTAuNDEgMTkxLjY2IDIxMi45OTIgMTk0LjM0NSAyMTIuOTkyIDE5Ny42MzJWMjAyLjc1MkgxNTUuNjQ4VjE5Ny42MzJDMTU1LjY0OCAxOTQuMzQ1IDE1OC4yMjkgMTkxLjY2IDE2MS40NzYgMTkxLjQ5NkwxNjEuNzkyIDE5MS40ODhWMTg2LjM2OEMxNjEuNzkyIDE4My4wODEgMTY0LjM3MyAxODAuMzk2IDE2Ny42MiAxODAuMjMyTDE2Ny45MzYgMTgwLjIyNFYxMzguMjRDMTY3LjkzNiAxMTYuMTg0IDE1MC4wNTYgOTguMzA0IDEyOCA5OC4zMDRDMTA1Ljk0NCA5OC4zMDQgODguMDYzOCAxMTYuMTg0IDg4LjA2MzggMTM4LjI0VjE4MC4yMjRMODguMzc5OCAxODAuMjMyQzkxLjYyNjIgMTgwLjM5NiA5NC4yMDc4IDE4My4wODEgOTQuMjA3OCAxODYuMzY4VjE5MS40ODhMOTQuNTIzOCAxOTEuNDk2Qzk3Ljc3MDIgMTkxLjY2IDEwMC4zNTIgMTk0LjM0NSAxMDAuMzUyIDE5Ny42MzJWMjAyLjc1Mkg0My4wMDc4VjE5Ny42MzJDNDMuMDA3OCAxOTQuMzQ1IDQ1LjU4OTQgMTkxLjY2IDQ4LjgzNTggMTkxLjQ5Nkw0OS4xNTE4IDE5MS40ODhWMTg2LjM2OEM0OS4xNTE4IDE4My4wODEgNTEuNzMzNCAxODAuMzk2IDU0Ljk3OTggMTgwLjIzMkw1NS4yOTU4IDE4MC4yMjRWOTQuMjA4SDQ4LjEyNzhMNDQuMDMxOCA3MS42OEg3Mi43MDM4VjU0LjI3MkgxODMuMjk2VjcxLjY4WiIgZmlsbD0id2hpdGUiPjwvcGF0aD48L3N2Zz4K',
-            // use the rdns from @farcaster/wagmi-frame-connector so it'll get
-            // deduped in cases where the user is configuring manually and is
-            // supporting injected wallet discovery
-            rdns: 'xyz.farcaster.MiniAppWallet',
+            name: whiteLabel.enabled ? whiteLabel.appName : 'Farcaster',
+            icon: whiteLabel.enabled
+              ? whiteLabel.walletIconDataUrl
+              : 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDI1NiAyNTYiIGZpbGw9Im5vbmUiPjxyZWN0IHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2IiByeD0iNTYiIGZpbGw9IiM3QzY1QzEiPjwvcmVjdD48cGF0aCBkPSJNMTgzLjI5NiA3MS42OEgyMTEuOTY4TDIwNy44NzIgOTQuMjA4SDIwMC43MDRWMTgwLjIyNEwyMDEuMDIgMTgwLjIzMkMyMDQuMjY2IDE4MC4zOTYgMjA2Ljg0OCAxODMuMDgxIDIwNi44NDggMTg2LjM2OFYxOTEuNDg4TDIwNy4xNjQgMTkxLjQ5NkMyMTAuNDEgMTkxLjY2IDIxMi45OTIgMTk0LjM0NSAyMTIuOTkyIDE5Ny42MzJWMjAyLjc1MkgxNTUuNjQ4VjE5Ny42MzJDMTU1LjY0OCAxOTQuMzQ1IDE1OC4yMjkgMTkxLjY2IDE2MS40NzYgMTkxLjQ5NkwxNjEuNzkyIDE5MS40ODhWMTg2LjM2OEMxNjEuNzkyIDE4My4wODEgMTY0LjM3MyAxODAuMzk2IDE2Ny42MiAxODAuMjMyTDE2Ny45MzYgMTgwLjIyNFYxMzguMjRDMTY3LjkzNiAxMTYuMTg0IDE1MC4wNTYgOTguMzA0IDEyOCA5OC4zMDRDMTA1Ljk0NCA5OC4zMDQgODguMDYzOCAxMTYuMTg0IDg4LjA2MzggMTM4LjI0VjE4MC4yMjRMODguMzc5OCAxODAuMjMyQzkxLjYyNjIgMTgwLjM5NiA5NC4yMDc4IDE4My4wODEgOTQuMjA3OCAxODYuMzY4VjE5MS40ODhMOTQuNTIzOCAxOTEuNDk2Qzk3Ljc3MDIgMTkxLjY2IDEwMC4zNTIgMTk0LjM0NSAxMDAuMzUyIDE5Ny42MzJWMjAyLjc1Mkg0My4wMDc4VjE5Ny42MzJDNDMuMDA3OCAxOTQuMzQ1IDQ1LjU4OTQgMTkxLjY2IDQ4LjgzNTggMTkxLjQ5Nkw0OS4xNTE4IDE5MS40ODhWMTg2LjM2OEM0OS4xNTE4IDE4My4wODEgNTEuNzMzNCAxODAuMzk2IDU0Ljk3OTggMTgwLjIzMkw1NS4yOTU4IDE4MC4yMjRWOTQuMjA4SDQ4LjEyNzhMNDQuMDMxOCA3MS42OEg3Mi43MDM4VjU0LjI3MkgxODMuMjk2VjcxLjY4WiIgZmlsbD0id2hpdGUiPjwvcGF0aD48L3N2Zz4K',
+            // The fork's wallet bridge has its own identity. The upstream
+            // connector identifier is retained only in disabled builds.
+            rdns: whiteLabel.enabled
+              ? 'social.10x.MiniAppWallet'
+              : 'xyz.farcaster.MiniAppWallet',
             uuid: getEip6963UUID(),
           },
         });

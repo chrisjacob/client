@@ -1152,24 +1152,6 @@
     "reason": "External protocol, official app/service, paid product, reward, or source-data identity; do not imply it is supplied by this fork."
   },
   {
-    "file": "src/components/profiles/CurrentUserProfileMenuActions.tsx",
-    "kind": "template",
-    "source": "https://farcaster.xyz/",
-    "count": 1,
-    "category": "preserve",
-    "value": "https://farcaster.xyz/",
-    "reason": "Technical identifier, URL, source asset name, external address, or compatibility contract."
-  },
-  {
-    "file": "src/components/profiles/CurrentUserProfileMenuActions.tsx",
-    "kind": "template",
-    "source": "https://farcaster.xyz/~/profiles/",
-    "count": 1,
-    "category": "preserve",
-    "value": "https://farcaster.xyz/~/profiles/",
-    "reason": "Technical identifier, URL, source asset name, external address, or compatibility contract."
-  },
-  {
     "file": "src/components/profiles/FarcasterProBadgeDetailsModal.tsx",
     "kind": "literal",
     "source": "farcaster-pro",
@@ -1253,24 +1235,6 @@
     "count": 1,
     "category": "app",
     "value": " / {{appName}}"
-  },
-  {
-    "file": "src/components/profiles/ProfileMenuActions.tsx",
-    "kind": "template",
-    "source": "https://farcaster.xyz/",
-    "count": 1,
-    "category": "preserve",
-    "value": "https://farcaster.xyz/",
-    "reason": "Technical identifier, URL, source asset name, external address, or compatibility contract."
-  },
-  {
-    "file": "src/components/profiles/ProfileMenuActions.tsx",
-    "kind": "template",
-    "source": "https://farcaster.xyz/~/profiles/",
-    "count": 1,
-    "category": "preserve",
-    "value": "https://farcaster.xyz/~/profiles/",
-    "reason": "Technical identifier, URL, source asset name, external address, or compatibility contract."
   },
   {
     "file": "src/components/profiles/ProfileMetadata.tsx",

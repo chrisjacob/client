@@ -12,6 +12,7 @@ import { useCallback, useRef, useState } from 'react';
 import { UserExtrasModal } from '~/components/modals/UserExtrasModal';
 import { DefaultPopoverContainer } from '~/components/popovers/DefaultPopoverContainer';
 import { Popover } from '~/components/popovers/Popover';
+import { getPublicProfileURL } from '~/fork/publicLinks';
 import { useIsAdmin } from '~/hooks/data/useIsAdmin';
 import { useNavigateToAdminEngagementRingCandidates } from '~/hooks/navigation/useNavigateToAdminEngagementRingCandidates';
 
@@ -44,9 +45,10 @@ const CurrentUserProfileMenuActions: React.FC<
     (e: React.SyntheticEvent) => {
       e.stopPropagation();
 
-      const profileUri = user.username
-        ? `https://farcaster.xyz/${user.username}`
-        : `https://farcaster.xyz/~/profiles/${user.fid}`;
+      const profileUri = getPublicProfileURL({
+        username: user.username,
+        fid: user.fid,
+      });
 
       navigator.clipboard.writeText(profileUri);
 
