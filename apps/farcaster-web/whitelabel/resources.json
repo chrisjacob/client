@@ -76,7 +76,19 @@
     },
     {
       "target": "public/brand/landing-video.mp4",
-      "replacement": "resources/public/landing-video.mp4",
+      "replacement": "resources/public/matrix_bg_500x500_v2.mp4",
+      "upstream": "src/pages/homeLanding/LandingVideo.mp4",
+      "upstreamSha256": "552cdc3588ef89e1408f6e90abd820002d835be657314b8ce83e76889f45b778"
+    },
+    {
+      "target": "public/brand/landing-video-desktop.mp4",
+      "replacement": "resources/public/matrix_bg_1080x1080.mp4",
+      "upstream": "src/pages/homeLanding/LandingVideo.mp4",
+      "upstreamSha256": "552cdc3588ef89e1408f6e90abd820002d835be657314b8ce83e76889f45b778"
+    },
+    {
+      "target": "public/brand/landing-video-poster.webp",
+      "replacement": "resources/public/matrix_bg_500x500_poster.webp",
       "upstream": "src/pages/homeLanding/LandingVideo.mp4",
       "upstreamSha256": "552cdc3588ef89e1408f6e90abd820002d835be657314b8ce83e76889f45b778"
     }

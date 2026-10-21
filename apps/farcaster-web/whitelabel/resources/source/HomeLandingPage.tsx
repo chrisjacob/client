@@ -1,5 +1,5 @@
 import { AnalyticsEvent } from 'farcaster-analytics';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Link } from '~/components/links/Link';
 import { LogoBrandContextMenu } from '~/components/LogoBrandContextMenu';
@@ -9,6 +9,97 @@ import { Page } from '~/components/page/Page';
 import { useAnalytics } from '~/contexts/AnalyticsProvider';
 import { forkConfig } from '~/fork/config';
 import { whiteLabel } from '~/fork/whiteLabel';
+
+function LandingBackground() {
+  const [playVideo, setPlayVideo] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const reducedData = window.matchMedia('(prefers-reduced-data: reduce)');
+    const desktopViewport = window.matchMedia('(min-width: 1024px)');
+    const connection = (
+      navigator as Navigator & {
+        connection?: EventTarget & { saveData?: boolean };
+      }
+    ).connection;
+    const syncPreference = () => {
+      setIsDesktop(desktopViewport.matches);
+      setPlayVideo(
+        !reducedMotion.matches &&
+          !reducedData.matches &&
+          connection?.saveData !== true,
+      );
+    };
+
+    syncPreference();
+    reducedMotion.addEventListener('change', syncPreference);
+    reducedData.addEventListener('change', syncPreference);
+    desktopViewport.addEventListener('change', syncPreference);
+    connection?.addEventListener('change', syncPreference);
+    return () => {
+      reducedMotion.removeEventListener('change', syncPreference);
+      reducedData.removeEventListener('change', syncPreference);
+      desktopViewport.removeEventListener('change', syncPreference);
+      connection?.removeEventListener('change', syncPreference);
+    };
+  }, []);
+
+  const videoSrc = isDesktop
+    ? '/brand/landing-video-desktop.mp4'
+    : '/brand/landing-video.mp4';
+  const videoFade = isDesktop
+    ? 'linear-gradient(to bottom, black 0%, transparent 65%)'
+    : 'linear-gradient(to bottom, black 0%, black 50%, transparent 100%)';
+
+  return (
+    <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-x-0 top-0 w-full select-none overflow-hidden"
+      style={{
+        height: 'min(100vw, 100dvh)',
+        maskImage: videoFade,
+        WebkitMaskImage: videoFade,
+      }}
+    >
+      {playVideo ? (
+        <video
+          key={videoSrc}
+          src={videoSrc}
+          poster="/brand/landing-video-poster.webp"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          tabIndex={-1}
+          className="absolute inset-0 size-full object-cover object-top opacity-25"
+        />
+      ) : (
+        <img
+          src="/brand/landing-video-poster.webp"
+          alt=""
+          className="absolute inset-0 size-full object-cover object-top opacity-25"
+        />
+      )}
+      <div
+        className="absolute inset-x-0 bottom-0 h-1/2"
+        style={{
+          background:
+            'linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0) 100%)',
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background: isDesktop
+            ? 'radial-gradient(circle at top, rgba(0, 255, 0, 0.2), rgba(0, 0, 0, 0.88) 42%)'
+            : 'radial-gradient(circle at top, rgba(0, 255, 0, 0.2), rgba(0, 0, 0, 0.88) 62%)',
+        }}
+      />
+    </div>
+  );
+}
 
 function FullLogo() {
   const logoUrl =
@@ -37,18 +128,20 @@ export function HomeLandingPage() {
   return (
     <Page className="bg-black" meta={{ title: forkConfig.brandName }}>
       <div
-        className="flex min-h-dvh w-full flex-col px-6 py-8 sm:p-[60px]"
+        className="relative isolate flex min-h-dvh w-full flex-col overflow-hidden px-6 py-8 [--landing-gradient-end:100%] sm:p-[60px] lg:[--landing-gradient-end:60%]"
         style={{
-          background: 'linear-gradient(180deg, #0b5a1e 0%, #000000 100%)',
+          background:
+            'linear-gradient(180deg, #0b5a1e 0%, #000000 var(--landing-gradient-end))',
         }}
       >
-        <header className="flex shrink-0 items-center">
+        <LandingBackground />
+        <header className="relative z-10 flex shrink-0 items-center">
           <LogoBrandContextMenu>
             <FullLogo />
           </LogoBrandContextMenu>
         </header>
 
-        <main className="flex flex-1 items-center justify-center py-14 sm:py-16">
+        <main className="relative z-10 flex flex-1 items-center justify-center py-14 sm:py-16">
           <div className="w-full max-w-[480px] text-center">
             <h1 className="font-seasonMix text-3xl font-semibold leading-tight text-white sm:text-4xl">
               You're Just One Trade Away...
@@ -102,7 +195,7 @@ export function HomeLandingPage() {
           </div>
         </main>
 
-        <footer className="flex shrink-0 flex-col items-center justify-between gap-4 text-sm sm:flex-row sm:gap-6">
+        <footer className="relative z-10 flex shrink-0 flex-col items-center justify-between gap-4 text-sm sm:flex-row sm:gap-6">
           <p className="font-seasonMix text-white/50">
             Copyright © {new Date().getFullYear()} {copyrightEntity}. All rights
             reserved.

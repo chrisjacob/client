@@ -37,9 +37,10 @@ const SupportPage: React.FC = React.memo(() => {
         <Para>
           Using 10X.Social can involve processing information in your browser,
           through our infrastructure, and by upstream providers. The client uses
-          browser storage for sessions and preferences and can send usage
-          information to analytics services. Read the Privacy Policy for
-          information about data handling and privacy requests.
+          browser storage for sessions and preferences. The inherited PostHog
+          analytics integration is disabled in this white-label client. Read the
+          Privacy Policy for information about data handling and privacy
+          requests.
         </Para>
         <H2>
           Is my data shared with or sold to 3rd parties for advertising or
@@ -63,6 +64,25 @@ const SupportPage: React.FC = React.memo(() => {
           </Link>{' '}
           for the distinction between Farcaster account requests, 10X privacy
           requests, and clearing local browser data.
+        </Para>
+        <H2>Privacy, abuse, and moderation requests</H2>
+        <Para>
+          Read the{' '}
+          <ExternalLink
+            href="https://app.10x.meme/privacy#10x-social"
+            title="10X.Social privacy section"
+          >
+            10X.Social privacy section
+          </ExternalLink>{' '}
+          and{' '}
+          <ExternalLink
+            href="https://app.10x.meme/terms#10x-social"
+            title="10X.Social terms section"
+          >
+            10X.Social terms section
+          </ExternalLink>{' '}
+          for the relevant request and reporting channels. Do not send
+          passwords, authentication tokens, private keys, or seed phrases.
         </Para>
         <H2>Contact us</H2>
         <Para>

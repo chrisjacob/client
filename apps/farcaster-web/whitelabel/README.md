@@ -42,6 +42,12 @@ previews may retain old icons until the browser/platform refreshes them.
 
 The flag is deliberately independent of `VITE_10X_FEATURES`: turning off
 animated avatars or media features must not change the published identity.
+White-label builds also disable the inherited PostHog integration, including
+pre-login events and attempts to re-enable it. This does not disable logging or
+analytics performed by independent upstream services or Mini Apps. Adopting an
+analytics provider and any required collection controls needs separate review.
+The linked shared legal revisions and `#10x-social` sections must be published
+in coordination with these client changes; this repository does not publish them.
 Rollback is `VITE_10X_FEATURE_WHITELABEL=false` plus a rebuild. That restores
 the current fork's branding behavior (including its existing 10X metadata),
 not a pristine copy of every upstream product decision.
@@ -108,7 +114,9 @@ when behavior or substantial copy also needs to change.
 | `512x512-v2.png`, `1024x1024-v2.png`, `256x256-v2.png` | Install icons and existing public image consumers. |
 | `brand/farcaster-icon.svg`, `brand/farcaster-combo.svg` | Logo context-menu downloads (independent of displayed logo files). |
 | `referral-info-splash.png` | Existing referral artwork. |
-| `landing-video.mp4` | Branded landing-page video; copied original contains upstream UI. |
+| `matrix_bg_500x500_v2.mp4` | Mobile Matrix landing background, served at `/brand/landing-video.mp4`. |
+| `matrix_bg_1080x1080.mp4` | Desktop Matrix loop at widths of 1024px and above, served at `/brand/landing-video-desktop.mp4`. |
+| `matrix_bg_500x500_poster.webp` | Still background for loading, reduced-motion, and data-saving preferences. |
 | `manifest.json` | Full PWA manifest; only explicit string placeholders expand. |
 
 Every mapping has a `target` (the web app's original module or public path) and

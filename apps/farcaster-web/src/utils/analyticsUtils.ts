@@ -1,11 +1,14 @@
 import posthog from 'posthog-js';
 
 import { posthogApiHost, posthogApiKey } from '~/constants/analytics';
+import { whiteLabel } from '~/fork/whiteLabel';
 
 type EventProperties = Record<string, unknown> | undefined;
 type FeatureFlagsCallback = Parameters<typeof posthog.onFeatureFlags>[0];
 
-let disabled = false;
+// The upstream project has not been adopted as a 10X analytics provider.
+// Keep white-label builds off even if a caller tries to re-enable capture.
+let disabled = whiteLabel.enabled;
 let posthogInitialized = false;
 let hasUserId = false;
 
@@ -17,6 +20,9 @@ const Analytics = {
   },
 
   enable: (): void => {
+    if (whiteLabel.enabled) {
+      return;
+    }
     disabled = false;
 
     if (!posthogInitialized) {

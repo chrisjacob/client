@@ -11,22 +11,18 @@ const DeleteAccountPage: React.FC = React.memo(() => {
       <div className="py-4">
         <H1>Delete your account</H1>
         <Para>
-          10X.Social uses Farcaster services for your account. To request help
-          deleting your Farcaster account, contact{' '}
+          10X.Social uses Farcaster services for your account. For requests
+          concerning your Farcaster account or information held by its
+          application services, use the current contact details and procedures
+          in the{' '}
           <ExternalLink
-            href="mailto:support+deleteaccount@neynar.com"
-            title="Email Support"
+            href="https://farcaster.xyz/~/privacy-policy"
+            title="Farcaster privacy notice"
           >
-            support+deleteaccount@neynar.com
-          </ExternalLink>{' '}
-          with the subject &quot;Delete account&quot;.
-        </Para>
-        <Para>
-          Please include the username associated with your account in the body
-          of the email.
-        </Para>
-        <Para>
-          The email must be from the same email associated with the account.
+            Farcaster privacy notice
+          </ExternalLink>
+          . Leaving 10X.Social does not automatically delete your Farcaster
+          account.
         </Para>
         <Para>
           Farcaster handles requests concerning information held by its services
@@ -37,10 +33,10 @@ const DeleteAccountPage: React.FC = React.memo(() => {
         <Para>
           For privacy requests concerning information held by 10X, read the{' '}
           <ExternalLink
-            href="https://app.10x.meme/privacy"
-            title="10X Privacy Policy"
+            href="https://app.10x.meme/privacy#10x-social"
+            title="10X.Social privacy section"
           >
-            10X Privacy Policy
+            10X.Social privacy section
           </ExternalLink>
           . Signing out or clearing browser data is different from requesting
           deletion of an account or information held by a service provider.

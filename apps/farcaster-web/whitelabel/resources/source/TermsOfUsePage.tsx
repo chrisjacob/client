@@ -14,7 +14,8 @@ const TermsOfUsePage: React.FC = React.memo(() => {
           10X.Social is an independent web client operated by{' '}
           {'{{legalEntity}}'} that connects to Farcaster application services
           and the Farcaster protocol. Using those services does not imply that
-          their providers sponsor or endorse 10X.Social.
+          their providers sponsor or endorse 10X.Social. You must be at least 18
+          years old to use 10X.Social.
         </Para>
         <Para>
           Read the published{' '}
@@ -28,6 +29,25 @@ const TermsOfUsePage: React.FC = React.memo(() => {
           for service conditions, eligibility, user-content rules, and other
           terms. Your use of independent third-party services is also subject to
           their applicable terms and policies.
+        </Para>
+        <Para>
+          See the{' '}
+          <ExternalLink
+            href="https://app.10x.meme/terms#10x-social"
+            title="10X.Social terms section (opens in a new tab)"
+            className="underline"
+          >
+            10X.Social terms section
+          </ExternalLink>{' '}
+          for client-specific terms, and the{' '}
+          <ExternalLink
+            href="https://farcaster.xyz/~/terms-of-use"
+            title="Farcaster Terms of Use (opens in a new tab)"
+            className="underline"
+          >
+            Farcaster Terms of Use
+          </ExternalLink>{' '}
+          for upstream application services.
         </Para>
         <Para>
           Access to features depends on supported authentication, permissions,

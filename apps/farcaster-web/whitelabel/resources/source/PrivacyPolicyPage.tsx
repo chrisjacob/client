@@ -18,11 +18,13 @@ const PrivacyPolicyPage: React.FC = React.memo(() => {
         <Para>
           Using the client can involve processing information in your browser,
           through our infrastructure, and by upstream providers. The client uses
-          browser storage for sessions and preferences and can send usage
-          information to analytics services. Public social posts, private
-          account information, and blockchain records have different visibility
-          and handling. Removing information from one service does not guarantee
-          its removal from independent third-party systems.
+          browser storage for sessions and preferences. The inherited PostHog
+          analytics integration is disabled in this white-label client.
+          Independent providers may process usage information under their own
+          policies. Public social posts, private account information, and
+          blockchain records have different visibility and handling. Removing
+          information from one service does not guarantee its removal from
+          independent third-party systems.
         </Para>
         <Para>
           Read the published{' '}
@@ -36,6 +38,25 @@ const PrivacyPolicyPage: React.FC = React.memo(() => {
           for information about our privacy practices, your rights, and how to
           make a privacy request. Independent providers may also process
           information under their own policies.
+        </Para>
+        <Para>
+          For the standalone client, see the{' '}
+          <ExternalLink
+            href="https://app.10x.meme/privacy#10x-social"
+            title="10X.Social privacy section (opens in a new tab)"
+            className="underline"
+          >
+            10X.Social privacy section
+          </ExternalLink>
+          . For upstream application services, see the{' '}
+          <ExternalLink
+            href="https://farcaster.xyz/~/privacy-policy"
+            title="Farcaster privacy notice (opens in a new tab)"
+            className="underline"
+          >
+            Farcaster privacy notice
+          </ExternalLink>
+          .
         </Para>
         <Para>
           This page provides a brief explanation of the client relationship. For

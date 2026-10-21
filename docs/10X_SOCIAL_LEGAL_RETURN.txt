@@ -1,0 +1,228 @@
+RETURN TO THE WARPLETSAPI AGENT — SOCIAL LEGAL INTEGRATION / READINESS
+Review date: 21 October 2026
+
+The supplied legal handoff has been applied to the FC Client working tree.
+Nothing in this work has been deployed. Changes to WarpletsAPI's authoritative
+documents remain the responsibility of that project. Existing unrelated local
+edits, including the original handoff file, have been preserved.
+
+1. IMPLEMENTED IN THE SOCIAL CLIENT
+
+The white-label Privacy and Terms pages remain short explanations, with normal
+links to the full documents plus:
+  https://app.10x.meme/privacy#10x-social
+  https://app.10x.meme/terms#10x-social
+
+They also link to the relevant upstream Farcaster application policies. The
+Terms summary explicitly states the 18+ requirement. Legal/operator contact
+placeholders remain configurable. The routes are still registered among the
+public routes; no login requirement, iframe, runtime policy scraping, policy
+copy, new agreement checkbox, or acceptance record has been introduced.
+
+Delete Account no longer directs users to the inherited Neynar email address
+or repeats an unverified account-verification procedure. It directs upstream
+requests to the current Farcaster privacy notice and Code Hunt requests to
+the Social section of the shared policy. Earlier cleanup already removed the
+zero-account-storage claim and one-week deletion promise. Support now provides
+the shared reporting/request links without promising a monitored inbox or a
+particular outcome/timeframe.
+
+Inherited PostHog is disabled whenever VITE_10X_FEATURE_WHITELABEL=true. This is
+enforced in the SDK wrapper's startup state and enable() method. White-label
+calls do not initialize the inherited project, capture pre-login or signed-in
+events, identify users, set account properties, read analytics device/session
+IDs, or request PostHog feature flags. A caller cannot re-enable it through
+Analytics.enable(). White-label mode off preserves the upstream lifecycle.
+
+This control does not delete previously transmitted data or existing browser
+records. The operational device identifier, session storage and authentication
+requests remain necessary parts of the account flow and have not been removed.
+It does not block hosting/CDN analytics, third-party Mini Apps, upstream API
+logs, or analytics inside separately operated wallet/services.
+
+Functional consequence: PostHog-provided promotions and remotely gated Snap
+transaction execution remain off when that SDK is not initialized. Local 10X
+feature flags are separate. We have not silently enabled financial execution
+paths to compensate for missing upstream flags.
+
+The local tunnel's VITE_FARCASTER_API_BASE_URL override was moved from
+.env.local to the ignored .env.development.local. Vite reads .env.local during
+production builds too, so leaving the tunnel URL there could accidentally make
+a future published build depend on the developer's running machine.
+
+2. CORRECTIONS NEEDED IN THE SHARED POLICY BEFORE COORDINATED PUBLICATION
+
+Update the current-processing description in privacy sections discussing
+Social's analytics, including the general storage/analytics discussion and
+section 27. Distinguish the earlier dated source finding from the new control:
+
+Suggested factual wording to adapt:
+  The white-label Social client disables the inherited PostHog integration.
+  It does not initialize that project or send client usage/identity events
+  through that integration. Operational browser/session information is still
+  processed to provide the service. Independently operated upstream services,
+  hosting providers and Mini Apps may process usage information under their
+  applicable arrangements and policies. Disabling this integration does not
+  erase information already transmitted by previous versions.
+
+Do not describe this control as having been deployed until a published build
+with the white-label flag enabled has been verified. Do not generalize it to
+"all analytics disabled", "no identifiers", "no logging", or "anonymous-only".
+
+Keep any source-history discussion clearly labelled as historical. Reconcile
+the final statement with the separate Cloudflare beacon described below.
+Preserve prospective effectiveness and the previous policy archive.
+
+3. OBSERVED CURRENT PRODUCTION EVIDENCE
+
+Read-only checks of https://10x.social/ returned HTTP 200. The response title
+and manifest name were Farcaster. Its entry script was:
+  https://10x.social/assets/index-9bTJalI7.js
+
+The inspected entry contains neither the newly added shared Social anchor nor
+the new local legal-page integration. Production is still an older published
+build; do not assume the current working tree or analytics guard is live.
+
+The published JavaScript explicitly selects:
+  API base in the browser: window.location.origin + /~api
+  Production websocket: wss://ws.farcaster.xyz/stream
+  Wallet mode: external-only
+
+An unauthenticated GET to https://10x.social/~api/v2/me returned HTTP 401 with
+Cache-Control: no-store. This confirms an unauthenticated response at that
+route, not authenticated endpoint behavior, zero logging, or full access to
+the deployed function configuration.
+
+The repository's relay forwards to https://farcaster.xyz, including supported
+request bodies and authorization/device headers, while stripping selected
+cookies/forwarding headers. Do not equate the repository review with an audit
+of the deployed backend, log settings, retention or provider agreements.
+
+The published entry contains the ph.neynar.com analytics host. That is evidence
+of included code/configuration, not a packet trace establishing which events
+were transmitted. The new guard has not been deployed by this work.
+
+The production HTML also includes a script from:
+  https://static.cloudflareinsights.com/beacon.min.js/...
+
+This is independent of the inherited PostHog wrapper. Its actual configuration,
+ownership, retained information, processing locations and appropriate disclosure
+need review. No Cloudflare dashboard setting was changed.
+
+Other production feature flags, including KLIPY enablement, were not established
+by the public bundle inspection. Their names were not recoverable as explicit
+flag values in the inspected entry. Do not infer that a feature is absent just
+because its code or URL is not in this entry; features can be lazy-loaded.
+
+4. VERIFIED UPSTREAM APPLICATION POLICY IDENTITY
+
+The official Farcaster application privacy notice and Terms of Use both show
+Last Updated: October 16, 2026. They identify NS0 PTE LTD, doing business as NS,
+Network School and ns.com. The privacy notice currently gives support@ns.com
+for privacy/contact/deletion requests. The local deletion page links to the
+notice instead of freezing a replacement address into another set of instructions.
+
+Sources checked:
+  https://farcaster.xyz/~/privacy-policy
+  https://farcaster.xyz/~/terms-of-use
+
+This finding concerns those application policies. It does not establish that
+the named company operates every analytics endpoint, wallet integration, API
+contractor or independent protocol participant, or that all act solely as Code
+Hunt processors. Do not infer endpoint ownership solely from legacy domains.
+
+5. CONFIRMED SOURCE BEHAVIOR AND UNRESOLVED READINESS ITEMS
+
+Accounts / permissions:
+  Email login sends the supplied address through the configured API. Mobile/QR
+  login exchanges synchronization messages and obtains a session token.
+  Authentication and onboarding state use localforage; a stable browser device
+  ID uses localStorage and is sent upstream. Sign-out clears local auth state,
+  key transport and caches. The reviewed signOut function does not demonstrate
+  upstream token revocation. Verify the actual account/device revocation route
+  and scopes for both login flows before giving procedural instructions.
+
+Wallets:
+  external-only is present in both source and the inspected public entry.
+  Upstream bridge and silent authentication-signing code still exists. This
+  review does not prove those paths are unreachable in all contexts or establish
+  every network-specific flow. Verify wallet-export/migration destinations and
+  current provider behavior before publishing instructions. No wallet or account
+  transaction was performed during this work.
+
+Messages / Mini Apps / media:
+  The client contains private messaging and third-party Mini App integration.
+  Their full routing, context disclosures, storage/access and encryption were
+  not established by this review. No end-to-end encryption promise was added.
+  KLIPY calls its own API directly when enabled; source defaults are not proof
+  of deployed flags, provisioned credentials or provider settings. Confirm which
+  features are enabled and the context each actual provider receives.
+
+Records / hosting / transfers:
+  No dedicated Code Hunt account database is implemented in the reviewed relay.
+  This does not establish the absence of other systems, logs or server-side
+  records. Hosting/security/diagnostic logs, access controls, retention, countries,
+  agreements and overseas-disclosure safeguards remain operational verification
+  items. No-store is a response cache instruction, not a zero-retention promise.
+
+Notices / consent / acceptance:
+  Shared policy and provider links are now available from the summaries. New
+  contextual notices, consent mechanisms or acceptance records have NOT been
+  implemented by this patch. Removing inherited PostHog closes that particular
+  client collection path; it does not establish compliance for remaining login,
+  wallet, Mini App, hosting or upstream processing. Final point-of-use notices
+  and any necessary permissions must follow the verified flows and legal review.
+  The 18+ text is an eligibility statement, not an age-verification system.
+
+Operations / legal:
+  Confirm privacy@10x.meme is monitored and that staff can triage privacy,
+  abuse and moderation-review requests. Existing MIT/upstream licence notices
+  remain intact. Australian privacy/consumer-law review and any required material
+  change notices, acceptance or consent records remain outstanding. No compliance
+  certification is implied by compilation/tests or these limited public checks.
+
+6. PUBLICATION COORDINATION
+
+Publish the revised shared policies and Social anchors in coordination with a
+Social release containing these changes and VITE_10X_FEATURE_WHITELABEL=true.
+Verify the published version/effective dates, API configuration, new links and
+actual analytics traffic after release. Existing installed/cached clients may
+continue running an older version until refreshed; do not describe code changes
+as retroactively withdrawing or deleting data.
+
+The white-label flag remains independent of optional product flags. A build
+with white-label mode off retains upstream behavior, including analytics.
+
+7. VALIDATION / EVIDENCE
+
+Passed: targeted lint; two SDK-boundary/lifecycle tests; two legal override and
+placeholder tests; branding inventory/resource audit; application typecheck;
+white-label typecheck; whitespace checks.
+
+The production build passed (Vite completed in 5m 5s). The generated Privacy
+and Terms chunks contain the Social anchors and resolved operator name, with
+no unresolved legalEntity placeholder. The generated deletion page contains
+the Social anchor and no inherited deletion email. The manifest identifies
+10X; the desktop background video matches the supplied file byte for byte.
+The build reported a non-fatal large-chunk warning.
+
+The build log is available locally in:
+  tmp/legal-readiness/production-build.log
+That local build uses white-label mode on, https://10x.social/~api as the API
+base, and KLIPY disabled for the validation build. It is not a statement of the
+currently deployed flags and is not a deployment.
+
+Read-only public evidence snapshots (ignored local files):
+  tmp/legal-readiness/production-index.html
+  tmp/legal-readiness/production-entry.js
+
+Relevant changed files in this separate workspace:
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/utils/analyticsUtils.ts
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/utils/__tests__/analyticsUtils.test.ts
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/whitelabel/resources/source/PrivacyPolicyPage.tsx
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/whitelabel/resources/source/TermsOfUsePage.tsx
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/whitelabel/resources/source/SupportPage.tsx
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/whitelabel/resources/source/DeleteAccountPage.tsx
+
+This packet is intended for the user to pass to the WarpletsAPI agent. No
+message has been sent to another agent/project or third party by a tool.
