@@ -80,6 +80,14 @@ Both 10X deployment scripts check the identity flag and branding audit before
 building, then verify the generated identity before invoking deployment. Direct
 manual hosting uploads must apply the same checks. The build step alone does not
 deploy and still supports both branding variants for CI.
+The release check also requires the canonical origin from `brand.json`, accepts
+only an unset API override (the runtime same-origin `/~api` relay) or that site's
+explicit `/~api` URL, and rejects a Cloudflare beacon in the built HTML. This
+cannot detect a beacon injected later by Cloudflare. The recommended next-release
+policy is to leave optional browser analytics disabled; verify the hosting and
+Web Analytics settings and the served HTML before publication is signed off.
+Production settings, retained records, permissions and notices still require the
+operational checks in `docs/10X_SOCIAL_POLICY_RECONCILIATION_RETURN.txt`.
 Canonical page metadata on the exact `farcaster.xyz` / `warpcast.com` origins is
 rebased to your configured site. This adapter applies only to page metadata;
 external navigation, API calls, mobile deep links, and wallet export stay intact.

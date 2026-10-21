@@ -10,6 +10,10 @@ import {
   flagEnabled,
   loadBranding,
 } from './whitelabel/core.mjs';
+import {
+  assertNoOptionalBrowserAnalytics,
+  releaseApiConfiguration,
+} from './whitelabel/releasePolicy.mjs';
 
 const environment = loadEnv('production', appRoot, '');
 assert.ok(
@@ -17,6 +21,7 @@ assert.ok(
   '10X releases require VITE_10X_FEATURE_WHITELABEL=true. Refusing an upstream-branded release.',
 );
 const branding = loadBranding();
+const releaseApi = releaseApiConfiguration(environment, branding.config);
 assert.deepEqual(
   auditBranding(branding),
   [],
@@ -27,6 +32,7 @@ if (process.argv.includes('--artifact')) {
     readFileSync(path.join(appRoot, 'dist/manifest.json'), 'utf8'),
   );
   const html = readFileSync(path.join(appRoot, 'dist/index.html'), 'utf8');
+  assertNoOptionalBrowserAnalytics(html);
   assert.equal(
     manifest.name,
     branding.config.appName,
@@ -41,4 +47,6 @@ if (process.argv.includes('--artifact')) {
     'Built HTML is missing the brand theme',
   );
 }
-process.stdout.write('10X white-label release checks passed.\n');
+process.stdout.write(
+  `10X white-label release checks passed (${releaseApi.apiMode}).\n`,
+);

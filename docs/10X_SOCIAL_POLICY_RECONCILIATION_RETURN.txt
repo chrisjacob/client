@@ -1,0 +1,217 @@
+RETURN TO THE WARPLETSAPI AGENT - POLICY RECONCILIATION / RELEASE ITEMS
+Review date: 21 October 2026 (Australia/Sydney)
+
+The reconciliation handoff was reviewed against the Social source, the existing
+local production artifact, public responses, and read-only Cloudflare Pages
+metadata. No deployment, account setting change, session revocation, wallet
+transaction, or message to another agent was performed.
+
+1. SHARED POLICY RECONCILIATION
+
+The local WarpletsAPI Markdown was read without modification. The revised
+PostHog/history/Cloudflare distinctions are consistent with the current client
+control. Keep the four existing integration URLs:
+  https://app.10x.meme/privacy
+  https://app.10x.meme/privacy#10x-social
+  https://app.10x.meme/terms
+  https://app.10x.meme/terms#10x-social
+
+Social's summaries remain public routes with ordinary links. No full policy
+copy, iframe, scraping, acceptance checkbox or consent record was introduced.
+The existing 18+ text is an eligibility statement, not age verification.
+
+Public publication state was checked using the Markdown sources that the
+shared LegalPage renderer actually fetches, not only its SPA HTML:
+  /legal/privacy.md - HTTP 200, Last Updated 21 August 2026.
+  /legal/terms.md   - HTTP 200, Last Updated 22 August 2026.
+Neither published Markdown contains 10x-social, the October revision or the
+new PostHog discussion. The new Social anchor destinations are therefore not
+yet available in those published documents. Preserve prospective wording and
+coordinate publication; do not imply the revised sections are already live.
+
+2. CURRENT SOCIAL SOURCE / ARTIFACT
+
+The completed branding work is committed and pushed on
+codex/external-wallet-cloudflare at:
+  6066cdd5d0b844f04eee0adc47d2e4557ec64b6a
+It has not been deployed by this work.
+
+White-label mode disables the inherited PostHog wrapper's initialization,
+capture (including pre-login), identity, person properties, analytics ID reads
+and feature-flag calls. Analytics.enable() cannot turn it back on in this mode.
+Operational device IDs, sessions and caches remain separate. SDK-boundary tests
+exercise these cases; they are not a trace of a real authenticated deployment.
+
+Other completed source work since the original readiness packet:
+  - Referrals hidden on desktop/mobile; referral and invite routes redirect home.
+  - Correct X/Farcaster handles, green theme, branded sharing and cast parsing.
+  - Mini App client identity is FID 1313340 (10xmeme.eth), with 10X wallet
+    discovery name/icon and a distinct bridge discovery identifier.
+  - Correct sitemap origin and branded logo downloads.
+  - Deployment commands refuse white-label mode off and check built identity.
+
+The local production build used white-label=true, API
+https://10x.social/~api and KLIPY=false. It passed the build, both typechecks
+and 41 targeted tests in the preceding implementation task. Its entry is:
+  /assets/index-7UCzCvjh.js
+Inspection confirms the intended API literal, upstream websocket destination
+wss://ws.farcaster.xyz/stream, and configured Mini App FID in that artifact.
+Its HTML identifies 10X and contains no Cloudflare analytics beacon.
+
+Those build inputs describe this local artifact, not a remote hosting setting
+or every future build. Optional product flags remain separate from identity.
+
+3. ADDITIONAL LOCAL RELEASE CHECKS IN THIS RECONCILIATION
+
+The release checker now also requires:
+  - HTTPS canonical origin matching the reviewed brand.siteUrl.
+  - No API override (runtime same-origin /~api), or the canonical site's explicit
+    /~api URL. Tunnel, loopback, upstream/external and query-bearing overrides
+    fail the 10X release check.
+  - No Cloudflare beacon script or data-cf-beacon script attribute in built HTML.
+
+These are local release-script changes, not a hosting configuration change.
+They cannot prevent a hosting provider from injecting a beacon after upload.
+They also do not turn a local environment check into evidence of remote traffic.
+Both deploy scripts already run this checker before/after building. Direct
+manual uploads must use the same checks. No deployment command was run here.
+
+Validation in this reconciliation:
+  - 17 branding/release-policy tests passed.
+  - 2 inherited PostHog SDK-boundary/lifecycle tests passed.
+  - The strengthened checker passed against the existing local production build.
+  - Scoped whitespace checks passed.
+No full application rebuild/typecheck was repeated for these release-script,
+test and documentation changes; the application bundle itself was not changed.
+
+4. VERIFIED PRODUCTION CONFIGURATION - READ-ONLY EVIDENCE
+
+The existing Wrangler login can read the 10x-social Pages project. This verifies
+access under the logged-in account, not corporate ownership, contractual roles
+or the ownership of every analytics resource.
+
+Pages metadata reports:
+  Project: 10x-social; production branch: main.
+  Domains: 10x.social and 10x-social.pages.dev.
+  Output directory: dist; no build command returned.
+  Canonical production deployment created: 19 October 2026.
+  Canonical deployment commit: 6c7b74d17548bce3d7181ff0daf4189ba8d2fb34.
+
+The inspected project production environment has no values set for:
+  VITE_10X_FEATURE_WHITELABEL, VITE_CANONICAL_URL,
+  VITE_FARCASTER_API_BASE_URL, VITE_10X_FEATURES,
+  VITE_10X_FEATURE_KLIPY_MEDIA_PICKER.
+
+For a prebuilt/direct upload, unset hosting variables do NOT prove which Vite
+values were embedded by the machine that built the uploaded assets. VITE values
+are build inputs, not settings that retroactively update an uploaded bundle.
+
+Public HTTPS checks still return Farcaster as the HTML title and manifest name.
+The public Social HTML still includes static.cloudflareinsights.com/beacon.min.js.
+The revised client is not the production build observed by these checks.
+
+The Pages response did not expose Web Analytics, retention or logging settings.
+Missing fields must not be interpreted as disabled analytics or zero records.
+
+5. CLOUDFLARE BEACON DECISION / REQUIRED OWNER ACTION
+
+Selected local release policy: do not adopt optional Cloudflare browser
+analytics until ownership, collection and controls have been deliberately
+reviewed. Remove/disable the injected beacon as part of the authorized release
+configuration. This release policy has not been applied to the live service.
+
+The Web Analytics configuration read returned HTTP 403 with the existing OAuth
+credential. No attempt was made to change permissions or settings. Its account,
+resource association, actual collection, recipients, retention, locations and
+rules are therefore not verified. Do not infer these from the public token or
+from access to the Pages project.
+
+Cloudflare documents both automatic proxy injection and Pages integration:
+  https://developers.cloudflare.com/web-analytics/get-started/
+  https://developers.cloudflare.com/pages/how-to/web-analytics/
+
+An account owner with the required access must inspect the matching Web Analytics
+site and Pages integration, disable the applicable injection, and verify served
+HTML and browser requests after the authorized release. A beacon-free dist file
+alone is insufficient. No analytics-site deletion is proposed: retained data,
+access and retention need a separate, deliberate handling decision.
+
+Policy instruction: keep the dated historical beacon finding. Do not state that
+the beacon has been removed until both the configuration and served traffic
+confirm removal. Then describe the chosen release prospectively, retaining the
+distinction from hosting/security logs and independent provider processing.
+
+6. PERMISSIONS / EXTERNAL FEATURES - SOURCE FINDINGS AND LIMITS
+
+Email login submits the supplied email through the configured API and consumes
+an upstream session token. QR/mobile login exchanges synchronization messages
+and decrypts an upstream auth token. The reviewed code does not establish the
+exact server-side permission scopes, lifetime or upstream revocation UI.
+
+Logout clears local auth, onboarding/key transport and caches. The reviewed
+AuthProvider signOut does not call upstream token revocation. The shared SDK has
+DELETE /v2/auth and PATCH /v2/auth/sessions/revoke methods, but their presence is
+not proof that the client invokes them or that a published user procedure has
+been tested. No active-session management page was found in this web client.
+Do not describe local logout as upstream revocation or publish an unverified
+revocation menu path. Confirm both login flows using a designated test account.
+
+The source remains external-wallet-only. Embedded bridge and other signing
+paths still exist and need end-to-end review on each supported network. The
+configured migration/export origin remains the official upstream origin; this
+review did not open a wallet or request a signature or transaction.
+
+Mini App SDK context can expose FID, username, display name, profile picture,
+profile location, launch context, client identity and added status. Notification
+details are conditional on upstream enabled preferences. This is source evidence,
+not a recording of every Mini App's actual calls or a determination of its legal
+role. Review the disclosure before launch and each actual permission request.
+
+KLIPY is off in the reviewed local release artifact. Its direct API integration
+can be enabled by other builds; live enablement was not established here.
+Messaging, media, notifications, stored keys, upstream access and substantiated
+encryption properties remain to be verified in authenticated test flows. No
+end-to-end encryption, zero storage or guaranteed-deletion statement was added.
+
+7. UNRESOLVED RELEASE ITEMS / RESPONSIBILITIES
+
+Social technical release owner:
+  Verify release variables and emitted API settings; capture redacted browser
+  traffic before login and through both authenticated login/logout/revocation
+  flows. Verify no inherited PostHog init/capture/identify/flags requests and no
+  optional Cloudflare beacon after configuration is changed. Test external
+  wallets, Mini Apps, media/messages and permission boundaries with test accounts.
+
+Infrastructure/account owner:
+  Resolve beacon configuration with appropriate account access. Inventory actual
+  hosting/security/diagnostic logs and other persistent records, access roles,
+  retention/deletion, recipients, processing countries, agreements and overseas
+  safeguards. Confirm privacy@10x.meme is monitored and supported by privacy,
+  abuse and moderation-review procedures. These were not verified from code.
+
+Product/legal owner:
+  Review the verified collection flows to determine and implement appropriate
+  contextual notices, permissions, consent and any material-change acceptance
+  records. This reconciliation adds no collection UI, consent ledger or age
+  verification. Obtain Australian privacy/consumer-law review. A policy link or
+  an SDK guard is not a substitute for these steps.
+
+WarpletsAPI policy owner:
+  Keep source/deployment wording and historical findings accurate; preserve
+  stable anchors and archives. Update the beacon description only against the
+  final operational evidence. Do not mark release items complete based on this
+  packet's local tests. Coordinate revised shared documents with the Social
+  release and verify the actual published Markdown and rendered anchors.
+
+8. EVIDENCE / DELIVERY
+
+Ignored local evidence is in tmp/policy-reconciliation/:
+  social-index.html; social-manifest.json; published-privacy.md;
+  published-terms.md; cloudflare-project-sanitized.json;
+  cloudflare-analytics-sanitized.json.
+These files contain no OAuth credential. Credential text was not logged or
+included in this handoff. The original supplied handoff and unrelated local
+edits have been preserved. No message was sent to the WarpletsAPI agent.
+
+Publication remains pending. This packet records technical evidence and open
+items; it is not certification of legal or operational readiness.
