@@ -30,7 +30,7 @@
     }
   },
   "start_url": ".",
-  "theme_color": "#ffffff",
+  "theme_color": "#000000",
   "scope": "/",
   "protocols": {
     "farcaster": {

@@ -1,0 +1,197 @@
+HANDOFF TO THE WARPLETSAPI AGENT: EXTEND THE SHARED 10X LEGAL PAGES FOR 10X.SOCIAL
+Prepared: 21 October 2026
+
+REQUEST AND INTENDED RESULT
+
+Review and update the authoritative documents currently published at:
+  https://app.10x.meme/privacy
+  https://app.10x.meme/terms
+
+Extend their coverage to the separately developed 10X.Social client at https://10x.social. Keep one authoritative privacy policy and one authoritative set of general terms. Add clearly labelled product-specific sections where needed. Preserve existing coverage for the other 10X products and communities.
+
+The FC Client project will subsequently replace its copied upstream legal pages with concise 10X.Social explanations and links to these authoritative documents. Do not create another complete copy of the policies in FC Client as part of this work. You may not have access to FC Client; the technical findings below provide that context.
+
+First locate the real source of the published pages in WarpletsAPI, including any shared legal-content module. The project name alone does not establish where the UI is maintained. Implement changes using the existing project conventions and verify the rendered result. This handoff requests no deployment.
+
+1. PRODUCT AND BUSINESS CONTEXT
+
+The existing policies identify the operator as Code Hunt Pty Ltd, trading as 10X Meme, an Australian company. Confirm the existing legal identity and use it consistently. Do not invent an ABN, address, corporate relationship, or different contracting entity.
+
+10X.Social is an independently branded web client derived from the open-source Farcaster client. It provides a 10X interface to Farcaster-connected social functionality. It is a separate product from a 10X Mini App running inside somebody else's Farcaster client.
+
+Depending on enabled features, the inherited client supports social feeds, public profiles, casts/posts and replies, reactions, follows, media, messaging, notifications, third-party Mini Apps, and wallet-related functionality. Feature availability must be confirmed before making specific promises. A white-label flag changes branding and selected content; it does not replace the upstream APIs or establish an independent social-data backend.
+
+The intended wallet mode in this fork is external-only. The fork does not offer the upstream embedded wallet as the preferred wallet choice in that mode, and wallet-export migration is directed to an official upstream origin. However, the repository still contains upstream wallet bridge code. Do not infer that every wallet-related integration has disappeared, or that every supported network uses identical flows.
+
+The user describes the app as a lite frontend. This means the main account/social backend remains upstream; it does not mean Code Hunt processes no personal information or has no privacy responsibilities.
+
+The user anticipates Farcaster operator/name changes following an acquisition. Treat this as a reason to verify current provider identities and policy links, not as proof of a particular current legal owner or contractual relationship. Avoid naming individual acquirers in enduring policy text unless legally necessary and verified.
+
+2. TECHNICAL FINDINGS FROM FC CLIENT
+
+These findings were established by source review on 21 October 2026. They describe code and defaults, not a complete production traffic capture or audit of hosting dashboards.
+
+A. Requests and hosting
+The production API base defaults to a same-origin /~api relay. A Cloudflare Pages Function forwards requests to https://farcaster.xyz/~api. A build-time setting can select a different API base, so confirm the actual deployed configuration.
+
+The relay passes through request bodies and authorization/device headers while removing selected cookies and forwarding headers. It sets Cache-Control: no-store on relayed responses. That cache header is not proof that Cloudflare, upstream services, security tooling, or diagnostic systems retain no logs. Requests can include private account data and authentication information; data categories depend on the endpoint. A separate upstream websocket URL is also configured.
+
+Therefore: disclose Code Hunt's infrastructure processing as well as upstream processing. Do not claim that every request travels directly from the browser to Farcaster, that 10X never handles authentication information, or that all service traffic goes through the relay.
+
+B. Authentication and browser storage
+The client has email magic-link login and a mobile/QR synchronization flow. The email form sends the supplied address through the configured Farcaster API client. Do not assume the Resend provider used elsewhere by 10X sends these upstream login emails.
+
+Authentication tokens and onboarding state are persisted through localforage. Other preferences and a stable per-browser device identifier use localStorage; the device identifier is sent to the upstream API. The client also has query-cache persistence support. Storage technology and retention depend on the browser and application settings.
+
+Authentication/session credentials are different from wallet seed phrases, wallet private keys, and protocol signing permissions. Logging in may establish an ongoing session capable of performing supported account actions. It is inaccurate to imply that each cast or other ordinary authenticated action requires a fresh approval in the mobile app. The exact granted permissions and revocation procedures need verification for each supported login flow.
+
+C. Analytics: current code differs from a recommendation
+The app initializes PostHog at startup. Its analytics configuration imports upstream development/production project settings and uses https://ph.neynar.com. The wrapper configures localStorage persistence, disables autocapture and automatic pageview capture, enables page-leave capture, and supports explicit events, user identification, and account-related properties. Some events are emitted before authentication.
+
+Do not publish claims that analytics are disabled, anonymous-only, limited to essential storage, or sent only to Code Hunt based on this review. The recommendation is to disable inherited upstream analytics unless intentionally retained, then document the actual chosen behavior and any required controls. No analytics change has been implemented by this legal review. The API agent must flag that dependency to the FC Client agent/user rather than describe the recommended future configuration as an accomplished fact.
+
+D. Third-party functionality
+The client can host third-party Mini Apps and load external media/services. It also contains a feature-flagged KLIPY media picker. Opening or interacting with these features may create additional direct requests or share context with independent providers. Confirm what is enabled and what data is provided; do not list every 10X.MEME integration as if every Social user necessarily uses it.
+
+E. Account/deletion wording currently needs correction in FC Client
+The white-label deletion page currently claims that 10X stores no account information and describes an upstream email-based deletion process with a typical one-week completion time. These assertions were not substantiated by the review. They must not be carried into the shared policy. Upstream contact details, procedures, and timeframes require current verification.
+
+Subsequent client cleanup removed the zero-storage claim and guaranteed deletion outcome/timeframe, and aligned the Support page with the privacy summary. The inherited upstream deletion contact remains subject to the verification noted above. The shared-policy work should still distinguish these different requests and responsibilities.
+
+3. EXPLAIN THE DIFFERENT SYSTEMS IN PLAIN LANGUAGE
+
+Use a short architecture/roles explanation covering:
+
+* Code Hunt / 10X.Social: operates the branded interface and its infrastructure; processes relevant requests, local sessions/settings, and whichever diagnostics/analytics are actually enabled.
+* Farcaster application services: upstream authentication, account, API, and application-specific services used by the client, operated by their respective provider(s) under applicable third-party policies.
+* Farcaster protocol: the shared public social-data network. Public casts, reactions, and other supported public social records can be distributed to independent clients, nodes, and indexers. Snapchain is part of Farcaster's social-data infrastructure.
+* Public blockchain networks: relevant identity/authorization registry events and wallet transactions, with their own public-record and permanence characteristics.
+
+These are different data flows, not four sequential storage copies of every item. Do not classify email addresses, login tokens, private messages, public casts, and blockchain transactions as having the same visibility or storage. Public social data should not all be described as an immutable Ethereum transaction. Do not promise end-to-end encryption or specific private-message storage locations without evidence.
+
+4. PRIVACY POLICY CHANGES AND REASONS
+
+The reviewed live policy showed a last-updated date of 21 August 2026. Re-read the current source before editing; section numbering may have changed.
+
+A. Overview and scope (reviewed sections 1-2)
+Explicitly include 10X.Social and https://10x.social in the definition of covered Services. Explain that using a standalone 10X client differs from using a 10X Mini App. Reason: users should be able to tell which operator and product the document covers.
+
+B. Data categories and collection (reviewed sections 3-4)
+Add client authentication/session information, browser/device identifiers, settings/caches, API requests, and enabled social features. Distinguish information a user supplies, information fetched from upstream/public sources, and information generated by operating the client. Explain that some private information may be processed through infrastructure to fulfill requests without assuming permanent database storage. Reason: the existing Farcaster discussion focuses heavily on Mini App context, public information, and enrichment.
+
+C. Purposes and recipients (reviewed sections 5, 11-13)
+Cover operating an authenticated client, relaying requested actions, maintaining sessions, displaying/updating social content, security, support, and verified analytics. Identify appropriate categories of hosting/security providers, upstream application providers, wallet/RPC services, independent Mini Apps, and enabled media providers. Verify countries/safeguards where applicable; do not invent a hosting location or classify every upstream provider automatically as Code Hunt's processor. Reason: service operation and independently operated platforms have different roles.
+
+D. Public information and protocol replication (reviewed sections 6-7)
+Expand beyond blockchain immutability to explain public social publication and replication. A request to remove a cast from supported services cannot guarantee erasure of independent archives, screenshots, indexers, or recipient copies. A blockchain record has separate deletion limitations. Reason: both blanket promises of erasure and statements that all Farcaster content is unchangeable would mislead.
+
+E. Cookies/storage and analytics (reviewed section 16)
+Separate operational/session storage from optional analytics. Reconcile the text describing non-essential analytics as a future addition with the current PostHog code finding. Describe actual controls and behavior after configuration is confirmed. A policy paragraph cannot create a consent mechanism or change running code. Reason: disclosures must match implementation.
+
+F. Retention and requests (reviewed sections 14, 17-18)
+Explain the distinction between signing out/clearing this browser, revoking access where supported, deleting information held by Code Hunt, requesting upstream account deletion, and removing public content. Clearing browser data does not necessarily revoke an upstream session; revocation does not erase posts or chain history. Avoid unverified fixed deletion deadlines, while preserving statutory rights/timeframes that apply. Retain the verified privacy contact privacy@10x.meme, subject to confirming it is monitored.
+
+G. Collection notices and third-party features
+Identify where short notices may be needed during login, wallet connection, Mini App launch, or optional analytics choices. Do not assume a general privacy-policy link supplies every notice or permission needed. Keep public-feed content distinct from private communications and do not authorize promotional reuse of private messages through broad wording.
+
+H. Existing rights and eligibility
+Preserve the existing Australian/international rights and complaint provisions subject to legal review. The existing policy and terms require users to be 18. Maintain consistency; do not import the upstream client's provisions allowing some younger users.
+
+5. TERMS CHANGES AND REASONS
+
+The reviewed live terms showed a last-updated date of 22 August 2026. Retain their existing general coverage and add a clearly labelled 10X.Social section, with related amendments to definitions and other affected clauses.
+
+A. Product, operator, and independence
+Explicitly cover the Social domain and service. Explain independent operation and use of Farcaster technology/services without implying sponsorship, ownership of the protocol, or an official-client relationship. Keep factual technical references to upstream names separate from 10X branding. Verify current upstream legal entities and links.
+
+B. Accounts and authorizations
+Explain that a Farcaster identity/account can be used through the client; access depends on supported authentication, session permissions, upstream availability, and applicable provider requirements. Distinguish social-session authorization, wallet connection, transaction signing, and protocol signing permissions. Explain disconnect/revocation limitations only to the extent verified. Do not promise a new independent identity or automatic deletion of the user's Farcaster account on leaving 10X.
+
+C. Publication, content rights, and moderation
+Cover publishing casts/replies/media and distributing public information through the protocol. Define the permissions needed to operate the client without claiming ownership of user content or automatically acquiring promotional rights to private communications. Explain that hiding/removing content from the 10X interface does not guarantee removal from the wider network, and suspending access to 10X is different from disabling a protocol identity everywhere. Maintain workable abuse-reporting and community rules.
+
+D. Third-party Mini Apps and external services
+Explain independent operation, context/data disclosures, separate terms, wallet prompts, external media, and transaction risks where relevant. Launching a Mini App through 10X does not establish endorsement. Retain responsibilities that mandatory law imposes on Code Hunt; an independence statement is not a blanket exemption from liability.
+
+E. Availability, fees, and dependencies
+Address API changes, upstream account restrictions, outages, protocol changes, and feature discontinuation. Describe fees or subscriptions only where actually offered, showing who charges them. Do not imply upstream referral rewards, storage subsidies, paid features, or purchases automatically transfer to 10X.
+
+F. Eligibility, governing law, and consumer rights
+Preserve the existing 18+ position, NSW/Australian-law framework, and non-excludable consumer protections, subject to appropriate legal review. Do not import the copied upstream client's California governing-law, mandatory AAA arbitration, or youth-eligibility clauses. Product-specific precedence should address direct inconsistencies clearly and preserve mandatory rights; general terms section 2 already anticipates additional product terms.
+
+G. Intellectual property and source licences
+Clarify that restrictions on copying/using 10X branding do not override rights granted by applicable open-source licences. The reviewed FC Client repository has an MIT licence with upstream attribution requirements. Preserve third-party notices as appropriate. Using upstream code does not make Code Hunt the upstream service operator or transfer upstream trademarks.
+
+6. SUGGESTED INTRODUCTORY WORDING TO ADAPT
+
+10X.Social is a web interface operated by Code Hunt Pty Ltd that lets users access supported Farcaster-connected social features. We operate the 10X interface and related infrastructure, while independent providers operate the upstream application services and the Farcaster protocol infrastructure used by particular features. Depending on how you use the service, information may be processed in your browser, through our infrastructure, by upstream providers, and through public social or blockchain networks. Public posts and private account information have different visibility and handling. The sections below explain those differences and the choices available to you.
+
+This is proposed explanatory wording, not a complete legal clause or a verified description of every enabled feature. Align it with the final data inventory and policy definitions.
+
+7. AUTHORITATIVE URLs AND CLIENT INTEGRATION
+
+Keep the existing full-document URLs stable. Prefer a stable #10x-social anchor on each page for the product-specific section. Return the final URLs/anchors to the FC Client agent.
+
+The proposed FC Client pages are:
+  https://10x.social/~/privacy-policy
+  https://10x.social/~/terms-of-use
+
+Those local pages will explain the client relationship briefly and link prominently to the authoritative full documents and Social sections. Their summary text must remain consistent with the master policy. Use normal links; do not require runtime scraping or an iframe to show legal terms. Preserve clear links between privacy and terms, public access without wallet/login requirements, and usable mobile layouts. Ideally these documents should be readable without initializing the main app's wallet or analytics machinery.
+
+Update Last Updated when content changes and set any new effective date intentionally. Preserve historical versions through a version/archive mechanism appropriate to the project; do not represent changed wording as having applied retroactively since August. Material notice/acceptance requirements need separate consideration. Recording acknowledgements or adding consent controls is implementation work, not something accomplished merely by writing the policy.
+
+8. VERIFY OR RETURN AS AN EXPLICIT DEPENDENCY
+
+Confirm the actual production Social API route, enabled features, analytics destination and controls, hosting/log retention, any persistent server-side storage, current upstream operator/policy links, session permissions/revocation, message handling, enabled Mini Apps/media providers, and monitored contact addresses. If those facts cannot be established from WarpletsAPI, return a concise list for the FC Client agent/user. Do not guess them or convert recommended future changes into present-tense facts.
+
+The API agent cannot substantiate the Social app's whole behavior by reviewing WarpletsAPI alone. Equally, the FC Client source review does not establish the internals of Farcaster's services or Cloudflare dashboard settings.
+
+9. DELIVERABLES / ACCEPTANCE
+
+* Updated authoritative privacy and terms content, preserving existing 10X coverage.
+* A concise change summary explaining each material addition and its rationale.
+* Stable URLs and anchors for the FC Client integration.
+* A clear distinction between verified wording and remaining factual dependencies.
+* Consistent operator identity, 18+ eligibility, contact details, and jurisdiction provisions.
+* No unsupported zero-storage, anonymous-analytics, guaranteed-erasure, approval-per-action, encryption, or deletion-timeframe promises.
+* Appropriate existing project checks and rendered-page verification, including mobile and direct public access.
+* Final wording flagged for Australian privacy/consumer-law review, particularly allocation of responsibilities and limitations. This brief does not establish which legal regimes apply or certify compliance.
+
+10. TECHNICAL EVIDENCE FOR FOLLOW-UP
+
+These are local paths in the separate FC Client workspace, not files the WarpletsAPI agent is assumed to possess:
+
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/constants/api.ts
+  API base selection, production relay default, and upstream websocket URL.
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/functions/~api/[[path]].ts
+  Cloudflare relay, forwarded bodies/authorization, stripped headers, cache setting.
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/contexts/AuthProvider.tsx
+  Persisted authentication and onboarding state; sign-out/session handling.
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/utils/storageUtils.ts
+  localforage storage adapter.
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/utils/deviceIdUtils.ts
+  Persistent device identifier sent upstream.
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/components/login/LoginWithMobile.tsx
+  Mobile synchronization and session-token login.
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/components/login/LoginMagicLinkWithInstructions.tsx
+  Email magic-link request through the configured API client.
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/index.tsx
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/utils/analyticsUtils.ts
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/constants/analytics.ts
+C:/Users/cjacob/Documents/ChatGPT/FC Client/packages/farcaster-analytics/src/config/analyticsConfig.ts
+  Startup analytics initialization, persistence, events, identity, upstream host/settings.
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/fork/config.ts
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/src/contexts/WalletProvider.tsx
+  Intended external-only wallet mode and provider selection.
+C:/Users/cjacob/Documents/ChatGPT/FC Client/apps/farcaster-web/whitelabel/resources/source/DeleteAccountPage.tsx
+  Current deletion assertions requiring revision in the client.
+C:/Users/cjacob/Documents/ChatGPT/FC Client/LICENSE
+  MIT licence and upstream attribution.
+
+Public background sources:
+https://github.com/farcasterxyz/snapchain
+  Official implementation describes Snapchain as Farcaster's social-data storage network.
+https://github.com/farcasterxyz/protocol/blob/main/docs/SPECIFICATION.md
+  Protocol message and registry concepts; verify current behavior before specific claims.
+https://www.oaic.gov.au/privacy/privacy-guidance-for-organisations-and-government-agencies/more-guidance/guide-to-developing-an-app-privacy-policy
+  Business-specific privacy policies, layered summaries, factual information gathering, and distinction from collection notices.

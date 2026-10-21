@@ -11,7 +11,8 @@ const DeleteAccountPage: React.FC = React.memo(() => {
       <div className="py-4">
         <H1>Delete your account</H1>
         <Para>
-          To delete your Farcaster account, please send an email to{' '}
+          10X.Social uses Farcaster services for your account. To request help
+          deleting your Farcaster account, contact{' '}
           <ExternalLink
             href="mailto:support+deleteaccount@neynar.com"
             title="Email Support"
@@ -28,12 +29,21 @@ const DeleteAccountPage: React.FC = React.memo(() => {
           The email must be from the same email associated with the account.
         </Para>
         <Para>
-          Farcaster will then delete any personal information we have stored on
-          our servers, including your email address.
+          Farcaster handles requests concerning information held by its services
+          under its own policies. Removing an account does not guarantee removal
+          of public posts, blockchain records, or copies held by independent
+          third parties.
         </Para>
         <Para>
-          We will send you a confirmation email once your data has been deleted,
-          typically within a week.
+          For privacy requests concerning information held by 10X, read the{' '}
+          <ExternalLink
+            href="https://app.10x.meme/privacy"
+            title="10X Privacy Policy"
+          >
+            10X Privacy Policy
+          </ExternalLink>
+          . Signing out or clearing browser data is different from requesting
+          deletion of an account or information held by a service provider.
         </Para>
       </div>
     </StandalonePage>

@@ -1,17 +1,17 @@
 {
-  "appName": "Farcaster",
-  "shortName": "Farcaster",
-  "description": "A decentralized social network",
-  "companyName": "Neynar",
-  "legalEntity": "Neynar, Inc.",
-  "contactEmail": "team+contact@neynar.com",
-  "websiteHost": "farcaster.xyz",
+  "appName": "10X",
+  "shortName": "10X",
+  "description": "The 10X Social Network",
+  "companyName": "Code Hunt",
+  "legalEntity": "Code Hunt Pty. Ltd.",
+  "contactEmail": "support@10x.meme",
+  "websiteHost": "10x.social",
   "siteUrl": "https://10x.social",
-  "socialHandle": "@farcaster_xyz",
-  "farcasterHandle": "@farcaster",
-  "supportEmail": "support+web@neynar.com",
+  "socialHandle": "@10xmeme.eth",
+  "farcasterHandle": "@10XMemeX",
+  "supportEmail": "support@10x.meme",
   "logoUrl": "/brand/logo.svg",
   "filledLogoUrl": "/brand/filled-logo.svg",
   "wordmarkUrl": "/brand/wordmark.svg",
-  "manifestDescription": "A sufficiently decentralized social network."
+  "manifestDescription": "A sufficiently 10X social network."
 }

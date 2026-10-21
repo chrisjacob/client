@@ -9,7 +9,7 @@ import { Para } from '~/components/text/Para';
 
 const SupportPage: React.FC = React.memo(() => {
   return (
-    <StandalonePage meta={{ title: 'Farcaster Support' }}>
+    <StandalonePage meta={{ title: '10X Support' }}>
       <div className="py-4">
         <H1>Support</H1>
         <H2>Important Links</H2>
@@ -28,39 +28,47 @@ const SupportPage: React.FC = React.memo(() => {
             to="termsOfUse"
             params={{}}
             searchParams={{}}
-            title="Terms of User"
+            title="Terms of Use"
           >
             Terms of Use
           </Link>
         </Para>
         <H2>How is my data used?</H2>
         <Para>
-          Neynar only collects a limited amount of personal data like an email
-          address and device identifiers. We use this information to offer the
-          core functionality of the app and for analytics to improve the app.
+          Using 10X.Social can involve processing information in your browser,
+          through our infrastructure, and by upstream providers. The client uses
+          browser storage for sessions and preferences and can send usage
+          information to analytics services. Read the Privacy Policy for
+          information about data handling and privacy requests.
         </Para>
         <H2>
           Is my data shared with or sold to 3rd parties for advertising or
           tracking purposes?
         </H2>
         <Para>
-          No. Neynar uses a select number of 3rd-party analytics tools strictly
-          for improving app functionality and performance.
+          The client connects to independent services, including upstream
+          application and analytics providers. Read the Privacy Policy and the
+          relevant providers' policies for information about sharing and use.
         </Para>
         <H2>How do I delete my account?</H2>
         <Para>
-          In the app, open the side menu and navigate to Advanced. Tap Delete
-          account and follow the instructions to confirm you would like to
-          delete your account.
+          Read the{' '}
+          <Link
+            to="supportDeleteAccount"
+            params={{}}
+            searchParams={{}}
+            title="Account deletion information"
+          >
+            account deletion information
+          </Link>{' '}
+          for the distinction between Farcaster account requests, 10X privacy
+          requests, and clearing local browser data.
         </Para>
         <H2>Contact us</H2>
         <Para>
           If you need to contact support, please send an email to{' '}
-          <ExternalLink
-            href="mailto:support+web@neynar.com"
-            title="Email Support"
-          >
-            support+web@neynar.com
+          <ExternalLink href="mailto:support@10x.meme" title="Email Support">
+            support@10x.meme
           </ExternalLink>
           .
         </Para>
