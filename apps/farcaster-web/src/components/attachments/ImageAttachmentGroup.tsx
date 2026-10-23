@@ -62,7 +62,7 @@ const ImageAttachmentGroup: React.FC<ImageAttachmentGroupProps> = React.memo(
               <ImageRenderComponent
                 key={imageIndex}
                 className={
-                  'relative max-w-full rounded-[12px] border object-cover object-left bg-elevated border-default'
+                  'cast-image-embed relative max-w-full rounded-[12px] border object-cover object-left bg-elevated border-default'
                 }
                 style={{
                   maxHeight: height,
@@ -94,7 +94,7 @@ const ImageAttachmentGroup: React.FC<ImageAttachmentGroupProps> = React.memo(
             <ImageRenderComponent
               key={imageIndex}
               className={classNames(
-                'relative max-w-full rounded-[12px] border object-cover bg-elevated border-default',
+                'cast-image-embed relative max-w-full rounded-[12px] border object-cover bg-elevated border-default',
                 fillTile
                   ? 'shrink-0 object-center'
                   : noShrink

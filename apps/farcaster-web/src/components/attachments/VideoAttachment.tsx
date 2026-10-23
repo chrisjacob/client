@@ -32,6 +32,7 @@ import {
 import { useInView } from 'react-intersection-observer';
 
 import { useVideoPlayStatus } from '~/contexts/VideoPlayStatusProvider';
+import { isAllowedKlipyMediaUrl } from '~/fork/klipy';
 
 interface VideoAttachmentProps {
   url: string;
@@ -431,7 +432,9 @@ const VidstackVideoPlayer: FC<VideoPlayerProps> = memo(
         !playing &&
         !manualAutoplayOverrideRef.current
       ) {
-        ref.current?.play();
+        void ref.current?.play().catch(() => {
+          // Browser autoplay policy may require the user to press Play.
+        });
       } else if (playing && activeVideoUrl !== url) {
         ref.current?.pause();
       }
@@ -479,7 +482,7 @@ const VidstackVideoPlayer: FC<VideoPlayerProps> = memo(
             eventsEmittedRef.current.fullscreen = true;
           }
 
-          if (ref.current) {
+          if (ref.current && !isAllowedKlipyMediaUrl(url)) {
             if (detail) {
               ref.current.muted = false;
               ref.current.volume = 1;

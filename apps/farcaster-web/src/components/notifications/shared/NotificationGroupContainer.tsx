@@ -247,7 +247,9 @@ const NotificationGroupContainer: FC<NotificationGroupContainerProps> = memo(
         className={cn(
           'relative flex flex-row items-start border-b px-4 pb-5 pt-4 border-default',
           clickable ? 'cursor-pointer hover:bg-overlay-faint' : '',
-          notificationGroup.isUnread ? 'bg-[#F5F4FF] dark:bg-[#1F182C]' : '',
+          notificationGroup.isUnread
+            ? 'bg-[var(--notification-unread-light,#F5F4FF)] dark:bg-[var(--notification-unread-dark,#1F182C)]'
+            : '',
         )}
         onClick={onClick}
         onAuxClick={onAuxClick}

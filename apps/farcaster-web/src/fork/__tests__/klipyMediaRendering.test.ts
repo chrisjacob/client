@@ -1,11 +1,76 @@
-import type { ApiCastImageEmbed } from 'farcaster-client-data';
+import type { ApiCastEmbeds, ApiCastImageEmbed } from 'farcaster-client-data';
 
 import {
   getCastImageMediaForRendering,
+  normalizeKlipyCastEmbeds,
   processForkMediasForRendering,
 } from '~/fork/klipyMediaRendering';
 
 describe('10X KLIPY direct media rendering', () => {
+  it('promotes old unsupported MP4/WebM links to videos without modifying the cached response', () => {
+    const source = 'https://static.klipy.com/clip.mp4';
+    const embeds: ApiCastEmbeds = {
+      images: [],
+      urls: [],
+      unknowns: [{ type: 'unknown', source }],
+    };
+    const normalized = normalizeKlipyCastEmbeds(embeds)!;
+    expect(normalized.unknowns).toEqual([]);
+    expect(normalized.videos).toEqual([
+      expect.objectContaining({
+        url: source,
+        sourceUrl: source,
+        type: 'video',
+      }),
+    ]);
+    expect(embeds.unknowns).toHaveLength(1);
+    expect(embeds.videos).toBeUndefined();
+  });
+
+  it('routes a clip-page preview to video rendering and keeps unrelated links and images', () => {
+    const source = 'https://klipy.com/clips/happy';
+    const embeds: ApiCastEmbeds = {
+      images: [],
+      unknowns: [{ type: 'unknown', source: 'https://example.com/clip.mp4' }],
+      urls: [
+        {
+          type: 'url',
+          openGraph: {
+            url: source,
+            image: 'https://static.klipy.com/poster.webp',
+          },
+        },
+        { type: 'url', openGraph: { url: 'https://example.com' } },
+      ],
+    };
+    const normalized = normalizeKlipyCastEmbeds(embeds)!;
+    expect(normalized.videos).toEqual([
+      expect.objectContaining({
+        sourceUrl: source,
+        thumbnailUrl: 'https://static.klipy.com/poster.webp',
+      }),
+    ]);
+    expect(normalized.urls).toHaveLength(1);
+    expect(normalized.unknowns).toEqual(embeds.unknowns);
+    expect(normalized.images).toBe(embeds.images);
+  });
+
+  it('does not render duplicate previews when a recognized video also appears as unknown', () => {
+    const source = 'https://static.klipy.com/clip.mp4';
+    const embeds: ApiCastEmbeds = {
+      images: [],
+      urls: [],
+      videos: [{ type: 'video', url: source, sourceUrl: source }],
+      unknowns: [{ type: 'unknown', source }],
+    };
+    expect(normalizeKlipyCastEmbeds(embeds)!.videos).toHaveLength(1);
+    const unrelated: ApiCastEmbeds = {
+      images: [],
+      urls: [],
+      unknowns: [{ type: 'unknown', source: 'https://example.com/video.mp4' }],
+    };
+    expect(normalizeKlipyCastEmbeds(unrelated)).toBe(unrelated);
+  });
   it('restores the original KLIPY source URL when API media was proxied', () => {
     const image: ApiCastImageEmbed = {
       type: 'image',

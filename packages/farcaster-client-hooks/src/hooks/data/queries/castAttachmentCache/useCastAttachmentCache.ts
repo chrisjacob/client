@@ -1,10 +1,24 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiCastEmbeds } from 'farcaster-client-data';
 import { useCallback } from 'react';
 
 import { buildCastAttachmentCacheKey } from './buildCastAttachmentCacheKey';
 
 type CastAttachmentCacheValue = { embeds?: ApiCastEmbeds } | undefined;
+
+// Unlike the imperative reader, this subscribes mounted casts to late previews.
+const useCachedCastAttachment = ({
+  fid,
+  hash,
+}: {
+  fid: number;
+  hash: string;
+}) =>
+  useQuery<CastAttachmentCacheValue>({
+    queryKey: buildCastAttachmentCacheKey({ fid, hash }),
+    enabled: false,
+    queryFn: async () => ({}),
+  }).data;
 
 const useCastAttachmentCache = () => {
   const qc = useQueryClient();
@@ -56,4 +70,8 @@ const useSetCastAttachmentCache = () => {
   );
 };
 
-export { useCastAttachmentCache, useSetCastAttachmentCache };
+export {
+  useCachedCastAttachment,
+  useCastAttachmentCache,
+  useSetCastAttachmentCache,
+};

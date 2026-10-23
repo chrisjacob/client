@@ -1,23 +1,42 @@
 # KLIPY production review
 
-Status: **implementation ready for local/staging tests; production approval is
-still required**.
+Status: **production picker enabled at the owner's direction on 24 October
+2026**. The provider questions below remain open; this records the owner's
+release decision, not written approval from KLIPY.
 
 ## Implemented integration model
 
 The 10X web client now follows a direct-client model:
 
-1. The end-user's browser calls `https://api.klipy.com/v2/...` directly.
+1. The end-user's browser calls `https://api.klipy.com/v2/...` directly for
+   GIFs, stickers, memes and emoji. Clips use KLIPY's native
+   `/api/v1/{app_key}/clips/trending` and `/clips/search` routes: the compatibility
+   search can return clips with empty `media_formats`. Native Clips pagination
+   uses page numbers, and clip selections register through the native share
+   route with the returned slug. No persistent customer identifier is added.
 2. Search results remain in the order returned by KLIPY.
 3. Picker previews load directly from the exact `static*.klipy.com` URLs in the
    response.
-4. Selecting media adds the unmodified KLIPY URL directly to the Farcaster
-   cast's standard URL embed field.
+4. Images use the unmodified KLIPY media URL in the cast's URL embed field.
+   Clips prefer the public `https://klipy.com/clips/...` page returned by KLIPY,
+   preserving its Open Graph animated image, video and player metadata for
+   other clients. The original MP4 remains the source for 10X inline playback.
 5. The 10X client does not download, upload, cache, proxy, re-host, or rewrite
    that media.
 6. The 10X cast renderer recognizes exact KLIPY media hosts and loads the
    original source URL instead of applying the Farcaster `wrpcd.net` image
    transform.
+   Unsupported raw KLIPY MP4/WebM links are promoted to video embeds locally.
+   Clip-page previews are resolved through the direct native `clips/items`
+   API near the viewport; resolved metadata is cached in the browser's query
+   cache. Playback uses the existing visibility-managed video player: muted
+   initially, looping, inline on mobile, with controls to enable audio. A
+   provider link remains available if resolution fails or the key is absent.
+   Newly published casts seed that attachment metadata from the canonical
+   composer attachments before profile queries refresh. Mounted casts subscribe
+   to this local metadata and fill missing server previews until processing
+   completes; matching processed server videos take precedence. Removed
+   attachments are excluded from this local preview as well as the cast payload.
 7. Register Share is called directly from the end-user's browser after a
    selection.
 
@@ -26,6 +45,12 @@ portable provider metadata field that can instruct every independent client or
 indexer how to fetch that URL. Consequently, 10X can control its own request
 path, but cannot control whether another Farcaster client, indexer, or gateway
 later fetches, caches, or proxies the public embed URL.
+
+The public page's metadata improves the input available to other clients; it
+does not guarantee inline autoplay in the official app. Its actual rendering
+must be verified after posting a new clip-page embed. Existing casts still
+contain their original MP4 URLs and cannot be rewritten in other clients by a
+frontend change. Native HLS/transcoded hosting is not added by this change.
 
 ## Questions requiring KLIPY's written answer
 
@@ -64,9 +89,15 @@ Send KLIPY the architecture above and ask them to confirm all of the following:
 12. **Deletion and moderation:** What should 10X do when KLIPY removes content
     whose URL is already present in an immutable cast?
 
-## Production launch gate
+## Production configuration and follow-up
 
-Keep `VITE_10X_FEATURE_KLIPY_MEDIA_PICKER=false` in the production build until:
+The committed `.env.production` enables
+`VITE_10X_FEATURE_KLIPY_MEDIA_PICKER=true`. Production builds use the production
+browser key: `VITE_KLIPY_API_KEY` if explicitly configured, otherwise
+`KLIPY_API_KEY` from the ignored `.dev.vars.production`. Never use the local
+testing key for a production release or commit either key.
+
+Outstanding provider and integration checks:
 
 - KLIPY has answered the questions above in writing and granted production
   access for the production key;
@@ -85,7 +116,7 @@ server credential. Local ignored `.dev.vars.*` files remain supported as a
 transition convenience, but their `KLIPY_API_KEY` values are likewise embedded
 when that environment is built with the picker enabled.
 
-The Vite configuration defaults the picker to enabled for development and
-disabled for production; while it is disabled, the production key is not
-embedded either. After the launch gate is cleared, explicitly set
-`VITE_10X_FEATURE_KLIPY_MEDIA_PICKER=true` for the production build.
+Without an explicit setting, the Vite configuration defaults the picker to
+enabled for development and disabled for production. The committed production
+setting above enables the release. Setting the flag to `false` disables the
+picker and omits its browser key from that build.

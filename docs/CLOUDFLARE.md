@@ -79,6 +79,20 @@ Vite proxies that fixed path to Farcaster while stripping cookies and
 forwarding metadata. Tunnel credentials stay in the user's `.cloudflared`
 directory and must never be committed.
 
+The launcher now supervises both processes independently. It restarts Vite or
+cloudflared after an unexpected exit, monitors an origin it initially reused,
+and restarts an owned origin if three health checks fail after its startup grace
+period. It uses bounded health checks and launches Vite directly, so there is no
+Windows shell process hiding the server's exit. Current PIDs and per-process
+logs are recorded in the ignored `tmp/local-tunnel/active.json`.
+
+White-label README, backup and public asset saves do not restart Vite. Branding
+configuration saves are debounced. An incomplete source/catalogue edit warns
+in development rather than terminating the server; `branding:check` and
+production builds still fail until it is reconciled. Recovery after a genuine
+crash can take a few seconds while Vite starts; a stopped PC or stopped launcher
+cannot serve this development URL.
+
 ## Domain cutover
 
 After the preview is approved, open the Pages project in Cloudflare and add

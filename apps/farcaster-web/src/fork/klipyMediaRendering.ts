@@ -1,4 +1,5 @@
 import type {
+  ApiCastEmbeds,
   ApiCastImageEmbed,
   ApiCastVideoEmbed,
   ApiMediaV2,
@@ -8,7 +9,56 @@ import {
   processMediasForRendering,
 } from 'farcaster-client-hooks';
 
-import { getKlipyMediaMimeType, isAllowedKlipyMediaUrl } from './klipy';
+import {
+  getKlipyMediaMimeType,
+  isAllowedKlipyMediaUrl,
+  isKlipyClipPageUrl,
+} from './klipy';
+
+/** Repair upstream unknown/OG classifications without mutating API cache data. */
+function normalizeKlipyCastEmbeds(
+  embeds?: ApiCastEmbeds,
+): ApiCastEmbeds | undefined {
+  if (!embeds) {
+    return embeds;
+  }
+  const videos = [...(embeds.videos ?? [])];
+  const known = new Set(
+    videos.flatMap((video) => [video.url, video.sourceUrl]),
+  );
+  let changed = false;
+  const promote = (source: string, thumbnailUrl?: string) => {
+    const mime = getKlipyMediaMimeType(source);
+    if (
+      mime !== 'video/mp4' &&
+      mime !== 'video/webm' &&
+      !isKlipyClipPageUrl(source)
+    ) {
+      return false;
+    }
+    changed = true;
+    if (!known.has(source)) {
+      videos.push({
+        type: 'video',
+        url: source,
+        sourceUrl: source,
+        width: 1280,
+        height: 720,
+        thumbnailUrl,
+      });
+      known.add(source);
+    }
+    return true;
+  };
+  const urls = (embeds.urls ?? []).filter(
+    ({ openGraph }) =>
+      !promote(openGraph.sourceUrl ?? openGraph.url, openGraph.image),
+  );
+  const unknowns = (embeds.unknowns ?? []).filter(
+    ({ source }) => !promote(source),
+  );
+  return changed ? { ...embeds, videos, urls, unknowns } : embeds;
+}
 
 function getDirectKlipyMediaUrl(
   ...candidates: Array<string | undefined>
@@ -77,5 +127,6 @@ export {
   getCastImageMediaForRendering,
   getCastVideoUrlForRendering,
   getDirectKlipyMediaUrl,
+  normalizeKlipyCastEmbeds,
   processForkMediasForRendering,
 };

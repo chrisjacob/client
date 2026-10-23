@@ -38,33 +38,42 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
       media="print"
-      onload="this.media='all'"
+      onload="this.media = 'all'"
     />
     <script>
-      (function() {
+      (function () {
         const STORAGE_KEY = 'user-saved-theme';
-        const DEFAULT_THEME = 'system';
-        
+        const DEFAULT_THEME =
+          document.documentElement.dataset.defaultTheme || 'system';
+
         try {
           const stored = localStorage.getItem(STORAGE_KEY);
-          const userSavedTheme = stored || DEFAULT_THEME;
-          
+          const userSavedTheme = ['dark', 'light', 'system'].includes(stored)
+            ? stored
+            : DEFAULT_THEME;
+
           let effective = userSavedTheme;
           if (userSavedTheme === 'system') {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const prefersDark = window.matchMedia(
+              '(prefers-color-scheme: dark)',
+            ).matches;
             effective = prefersDark ? 'dark' : 'light';
           }
-          
+
           const root = document.documentElement;
           root.classList.toggle('dark', effective === 'dark');
           root.classList.toggle('light', effective === 'light');
           root.setAttribute('data-theme', userSavedTheme);
         } catch (e) {
           // Fallback if localStorage is unavailable
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const prefersDark =
+            DEFAULT_THEME === 'dark' ||
+            (DEFAULT_THEME === 'system' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
           const root = document.documentElement;
           root.classList.toggle('dark', prefersDark);
           root.classList.toggle('light', !prefersDark);
+          root.setAttribute('data-theme', DEFAULT_THEME);
         }
       })();
     </script>

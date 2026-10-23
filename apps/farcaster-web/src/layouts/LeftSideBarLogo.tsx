@@ -3,6 +3,7 @@ import { FC, memo } from 'react';
 import { FilledLogo } from '~/components/FilledLogo';
 import { LinkToHomeFeed } from '~/components/links/LinkToHomeFeed';
 import { LogoBrandContextMenu } from '~/components/LogoBrandContextMenu';
+import { whiteLabel } from '~/fork/whiteLabel';
 import { useScrollToTopOfRoot } from '~/hooks/useScrollToTopOfRoot';
 
 type LeftSideBarLogoProps = {
@@ -22,7 +23,17 @@ const LeftSideBarLogo: FC<LeftSideBarLogoProps> = memo(({ title }) => {
         }}
       >
         <div className="flex h-14 flex-col items-center justify-center md:items-start">
-          <FilledLogo size="xs" />
+          {whiteLabel.enabled && whiteLabel.filledLogoUrl ? (
+            <img
+              src={whiteLabel.filledLogoUrl}
+              alt={whiteLabel.appName}
+              width={50}
+              height={50}
+              className="size-[50px] shrink-0 object-contain"
+            />
+          ) : (
+            <FilledLogo size="xs" />
+          )}
         </div>
       </LinkToHomeFeed>
     </LogoBrandContextMenu>

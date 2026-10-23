@@ -132,7 +132,12 @@ const KlipyMediaComposerPicker: React.FC<KlipyMediaComposerPickerProps> = ({
       setSelectedId(item.id);
       try {
         await onMediaSelect({ item });
-        void registerKlipyShare({ id: item.id, query }).catch(trackError);
+        void registerKlipyShare({
+          id: item.id,
+          query,
+          type: item.type,
+          slug: item.shareSlug,
+        }).catch(trackError);
         setOpen(false);
       } catch (cause) {
         trackError(cause);

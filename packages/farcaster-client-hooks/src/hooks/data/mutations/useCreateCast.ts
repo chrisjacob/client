@@ -1,9 +1,11 @@
-import { ApiOpenGraphMetadata } from 'farcaster-client-data';
+import { ApiCastEmbeds, ApiOpenGraphMetadata } from 'farcaster-client-data';
 import { useCallback } from 'react';
 
 import { useFarcasterApiClient } from '../../../providers/FarcasterApiClientProvider';
 import { sleep } from '../../../utils/PromiseUtils';
 import { useInvalidateActiveChannelStreak } from '../queries/activeChannelStreak/useInvalidateActiveChannelStreak';
+import { mergeCastAttachmentEmbeds } from '../queries/castAttachmentCache/mergeCastAttachmentEmbeds';
+import { useSetCastAttachmentCache } from '../queries/castAttachmentCache/useCastAttachmentCache';
 import { useInvalidateProfileSnapCasts } from '../queries/profileSnapCasts/useInvalidateProfileSnapCasts';
 import { useInvalidateUserCasts } from '../queries/userCasts/useInvalidateUserCasts';
 import { useInvalidateUserCastsAndReplies } from '../queries/userCastsAndReplies/useInvalidateUserCastsAndReplies';
@@ -16,6 +18,7 @@ function newClientRequestId() {
 
 const useCreateCast = () => {
   const { apiClient } = useFarcasterApiClient();
+  const setCastAttachmentCache = useSetCastAttachmentCache();
 
   const invalidateUserCasts = useInvalidateUserCasts();
   const invalidateUserCastsAndReplies = useInvalidateUserCastsAndReplies();
@@ -32,6 +35,7 @@ const useCreateCast = () => {
       embeds,
       channelKey,
       clientProcessedOpenGraphMetadata,
+      clientProcessedEmbeds,
       skipFeedRegenrationDelay = false,
     }: {
       fid: number;
@@ -42,6 +46,7 @@ const useCreateCast = () => {
       embeds?: string[];
       channelKey?: string;
       clientProcessedOpenGraphMetadata?: ApiOpenGraphMetadata[];
+      clientProcessedEmbeds?: ApiCastEmbeds;
       skipFeedRegenrationDelay?: boolean;
     }) => {
       const clientRequestId = newClientRequestId();
@@ -63,6 +68,21 @@ const useCreateCast = () => {
           retryLimit: 0,
         },
       );
+
+      // Seed before profile invalidations can render the new cast without its media.
+      const cast = response.data?.result.cast;
+      if (cast && clientProcessedEmbeds) {
+        setCastAttachmentCache({
+          fid: cast.author.fid,
+          hash: cast.hash,
+          castText: cast.text,
+          embeds: clientProcessedEmbeds,
+        });
+        cast.embeds = mergeCastAttachmentEmbeds(
+          cast.embeds,
+          clientProcessedEmbeds,
+        );
+      }
 
       // Wait a bit to give the server a chance to regenerate the feed
       if (skipFeedRegenrationDelay) {
@@ -88,6 +108,7 @@ const useCreateCast = () => {
     },
     [
       apiClient,
+      setCastAttachmentCache,
       invalidateActiveChannelStreak,
       invalidateProfileSnapCasts,
       invalidateUserCasts,

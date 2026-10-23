@@ -6,26 +6,32 @@ import { Modal } from '~/components/modals/Modal';
 
 type LoginModalProps = {
   onClose: () => void;
+  initialChannelId?: string;
 };
 
-const LoginModal: FC<LoginModalProps> = memo(({ onClose }) => {
-  return (
-    <Modal>
-      <DefaultModalContainer onClose={onClose}>
-        <div className="flex size-full flex-col items-center justify-center p-4">
-          <div
-            className="relative flex w-full max-w-md flex-col items-start justify-center rounded-[12px] bg-[#141414] p-4"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
-            <LoginWithMobile onClose={onClose} />
+const LoginModal: FC<LoginModalProps> = memo(
+  ({ onClose, initialChannelId }) => {
+    return (
+      <Modal>
+        <DefaultModalContainer onClose={onClose}>
+          <div className="flex size-full flex-col items-center justify-center p-4">
+            <div
+              className="relative flex w-full max-w-md flex-col items-start justify-center rounded-[12px] bg-[#141414] p-4"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            >
+              <LoginWithMobile
+                onClose={onClose}
+                initialChannelId={initialChannelId}
+              />
+            </div>
           </div>
-        </div>
-      </DefaultModalContainer>
-    </Modal>
-  );
-});
+        </DefaultModalContainer>
+      </Modal>
+    );
+  },
+);
 
 LoginModal.displayName = 'LoginModal';
 

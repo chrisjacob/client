@@ -86,12 +86,34 @@ export default defineConfig(({ mode }) => {
       ...(httpsEnabled ? [basicSsl()] : []),
     ],
     resolve: {
+      // App and linked workspace providers must share the renderer's React.
+      dedupe: ['react', 'react-dom'],
       alias: {
         '~': path.resolve(__dirname, './src'),
       },
     },
+    optimizeDeps: {
+      // Polyfill imports are injected after Vite's scan. Discovering them late
+      // can replace shared React chunks while a browser is still loading them.
+      include: [
+        'react',
+        'react-dom/client',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
+        'vite-plugin-node-polyfills/shims/buffer',
+        'vite-plugin-node-polyfills/shims/global',
+        'vite-plugin-node-polyfills/shims/process',
+      ],
+    },
     server: {
       https: httpsEnabled,
+      // These are development modules, not immutable production assets.
+      // Prevent the tunnel/CDN from assigning them a browser cache lifetime.
+      headers: {
+        'Cache-Control': 'no-store',
+        'CDN-Cache-Control': 'no-store',
+        'Cloudflare-CDN-Cache-Control': 'no-store',
+      },
       allowedHosts: ['local.10x.social'],
       proxy: {
         '/~api': {

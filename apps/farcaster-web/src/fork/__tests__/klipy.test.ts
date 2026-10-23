@@ -1,9 +1,190 @@
 import {
   buildKlipyRequestUrl,
   canEmbedKlipyUrl,
+  createKlipyComposerEmbed,
+  fetchKlipyClip,
   isAllowedKlipyMediaUrl,
+  isKlipyClipPageUrl,
   normalizeKlipyResponse,
+  registerKlipyShare,
+  searchKlipyMedia,
 } from '~/fork/klipy';
+
+const nativeClips = {
+  result: true,
+  data: {
+    current_page: 1,
+    has_next: true,
+    data: [
+      {
+        id: 4144663754405082,
+        type: 'clip',
+        slug: 'happy-clip',
+        title: 'Happy clip with audio',
+        url: 'https://klipy.com/clips/happy-clip',
+        file: {
+          mp4: 'https://static.klipy.com/clip.mp4',
+          gif: 'https://static.klipy.com/clip.gif',
+          webp: 'https://static.klipy.com/clip.webp',
+        },
+        file_meta: {
+          mp4: { width: 720, height: 382 },
+          gif: { width: 320, height: 170 },
+          webp: { width: 320, height: 170 },
+        },
+      },
+    ],
+  },
+};
+
+describe('native KLIPY Clips', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  it('converts native file/file_meta results into playable video attachments', () => {
+    const response = normalizeKlipyResponse(nativeClips, 'clip');
+    expect(response.next).toBe('2');
+    expect(response.results).toHaveLength(1);
+    expect(response.results[0]).toMatchObject({
+      mediaUrl: 'https://static.klipy.com/clip.mp4',
+      previewUrl: 'https://static.klipy.com/clip.webp',
+      mediaKind: 'video',
+      previewKind: 'image',
+      width: 720,
+      height: 382,
+      shareSlug: 'happy-clip',
+    });
+    expect(createKlipyComposerEmbed(response.results[0])).toMatchObject({
+      url: 'https://klipy.com/clips/happy-clip',
+      localUriRef: 'https://static.klipy.com/clip.mp4',
+      kind: 'video',
+      uploadStatus: 'uploaded',
+      apiVideoEmbed: { url: 'https://static.klipy.com/clip.mp4' },
+    });
+  });
+
+  it('resolves a public clip page back to its original MP4 without a first-party proxy', async () => {
+    vi.stubEnv('VITE_KLIPY_API_KEY', 'public-browser-key');
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({ ok: true, json: async () => nativeClips });
+    vi.stubGlobal('fetch', fetchMock);
+    const clip = await fetchKlipyClip({
+      pageUrl: 'https://klipy.com/clips/happy-clip',
+    });
+    const request = new URL(fetchMock.mock.calls[0][0]);
+    expect(request.origin).toBe('https://api.klipy.com');
+    expect(request.pathname).toBe('/api/v1/public-browser-key/clips/items');
+    expect(request.searchParams.get('slugs')).toBe('happy-clip');
+    expect(clip.mediaUrl).toBe('https://static.klipy.com/clip.mp4');
+  });
+
+  it('recognizes only official HTTPS clip pages and never looks up arbitrary hosts or paths', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    for (const url of [
+      'http://klipy.com/clips/happy',
+      'https://klipy.com.evil.test/clips/happy',
+      'https://user:password@klipy.com/clips/happy',
+      'https://klipy.com:444/clips/happy',
+      'https://klipy.com/clips/a%2Fb',
+      'https://klipy.com/gifs/happy',
+    ]) {
+      expect(isKlipyClipPageUrl(url)).toBe(false);
+      await expect(fetchKlipyClip({ pageUrl: url })).rejects.toThrow('Invalid');
+    }
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('ends native pagination and rejects non-clip items, invalid dimensions and foreign media hosts', () => {
+    const item = nativeClips.data.data[0];
+    const payload = {
+      result: true,
+      data: {
+        current_page: 2,
+        has_next: false,
+        data: [
+          item,
+          { ...item, type: 'ad' },
+          { ...item, file_meta: {} },
+          { ...item, file: { mp4: 'https://example.com/video.mp4' } },
+        ],
+      },
+    };
+    expect(normalizeKlipyResponse(payload, 'clip').results).toHaveLength(1);
+    expect(normalizeKlipyResponse(payload, 'clip').next).toBe('');
+  });
+
+  it.each(['', ' happy '])(
+    'uses native trending/search and page numbers for query %j',
+    async (query: string) => {
+      vi.stubEnv('VITE_KLIPY_API_KEY', 'public-browser-key');
+      vi.stubGlobal('navigator', { language: 'en-AU' });
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue({ ok: true, json: async () => nativeClips });
+      vi.stubGlobal('fetch', fetchMock);
+      const controller = new AbortController();
+      const response = await searchKlipyMedia({
+        query,
+        type: 'clip',
+        position: '2',
+        signal: controller.signal,
+      });
+      const url = new URL(fetchMock.mock.calls[0][0]);
+      expect(url.origin).toBe('https://api.klipy.com');
+      expect(url.pathname).toBe(
+        `/api/v1/public-browser-key/clips/${query ? 'search' : 'trending'}`,
+      );
+      expect(url.searchParams.get('page')).toBe('2');
+      expect(url.searchParams.get('per_page')).toBe('24');
+      expect(url.searchParams.get('locale')).toBe('AU');
+      expect(url.searchParams.get('q')).toBe(query ? 'happy' : null);
+      expect(url.searchParams.has('customer_id')).toBe(false);
+      expect(fetchMock.mock.calls[0][1].signal).toBe(controller.signal);
+      expect(response.results).toHaveLength(1);
+    },
+  );
+
+  it('reports native API failures rather than pretending the library is empty', async () => {
+    vi.stubEnv('VITE_KLIPY_API_KEY', 'public-browser-key');
+    vi.stubGlobal('navigator', { language: 'en-AU' });
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue({ ok: true, json: async () => ({ result: false }) }),
+    );
+    await expect(searchKlipyMedia({ query: '', type: 'clip' })).rejects.toThrow(
+      'temporarily unavailable',
+    );
+  });
+
+  it('registers clip selections by native slug while leaving GIF registration on v2', async () => {
+    vi.stubEnv('VITE_KLIPY_API_KEY', 'public-browser-key');
+    vi.stubGlobal('navigator', { language: 'en-AU' });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    vi.stubGlobal('fetch', fetchMock);
+    await registerKlipyShare({
+      id: '123',
+      type: 'clip',
+      slug: 'happy/clip',
+      query: 'happy',
+    });
+    const [url, options] = fetchMock.mock.calls[0];
+    expect(new URL(url).pathname).toBe(
+      '/api/v1/public-browser-key/clips/share/happy%2Fclip',
+    );
+    expect(options.method).toBe('POST');
+    expect(JSON.parse(options.body)).toEqual({ locale: 'AU', q: 'happy' });
+    await registerKlipyShare({ id: 'gif-1', query: 'happy', type: 'gif' });
+    expect(new URL(fetchMock.mock.calls[1][0]).pathname).toBe(
+      '/v2/registershare',
+    );
+  });
+});
 
 describe('10X KLIPY adapter', () => {
   it('normalizes GIF preview and full-size formats', () => {

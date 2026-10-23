@@ -42,7 +42,7 @@ const ImageAttachment: React.FC<ImageAttachmentProps> = React.memo(
             className={cn(
               // min-w-0: flex children default to min-width:auto, which prevents
               // shrinking below intrinsic image size. This must stay here.
-              'relative max-h-[318px] min-w-0 max-w-full cursor-pointer object-contain',
+              'cast-image-embed relative max-h-[318px] min-w-0 max-w-full cursor-pointer object-contain',
               !noBorderOnImage &&
                 !quotedCastImageMode &&
                 'rounded-lg border border-default',

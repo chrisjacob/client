@@ -10,6 +10,27 @@ without closing the local tunnel's origin port. Branding configuration and other
 resource changes still restart Vite and can briefly return Bad Gateway while it
 restarts; reload the page after the server is ready.
 
+The 10X landing page replaces email login with "Log in with Farcaster", using
+the QR hyperlink and starting the same pending channel in the original tab.
+Phone/tablet users see only "Log in with Farcaster". It opens the official app
+link separately, with an inline waiting/error status and cancellation instead
+of a QR modal. The original browser tab keeps the matching channel alive and
+completes authentication when the user returns. Desktop users see only "Log in
+with phone", which opens the QR modal. Device detection also covers iPad desktop
+mode and phones in landscape; it does not depend on viewport width.
+The filled app/header logo uses the editable `resources/public/256x256-v2.png`
+via `brand.json`'s `filledLogoUrl`. Cast image embeds (including quoted images)
+use transparent backgrounds and no image border in white-label mode.
+
+White-label pages default to Dark before first paint and after React mounts.
+Explicit Light, System or Dark choices remain in this device's local storage
+under `user-saved-theme`; no account-wide setting is changed. Unread/highlighted
+rows and their matching avatar borders use the configured green palette through
+`--notification-unread-light` and `--notification-unread-dark` (dark shade 200).
+
+The upstream email callback remains available for existing links. This changes
+the white-label interface only, not the upstream authentication service.
+
 ## Start tomorrow
 
 1. Edit `brand.json`. Change `appName` and `shortName` to `10X`, set your company
@@ -123,12 +144,12 @@ sentence in the app.
 
 Categories:
 
-| Category | Meaning |
-| --- | --- |
-| `app` | Presentation supplied by this web fork; editable. |
-| `legal` | Starter legal document strings; editable, or replace the whole page. |
+| Category   | Meaning                                                                                                                             |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `app`      | Presentation supplied by this web fork; editable.                                                                                   |
+| `legal`    | Starter legal document strings; editable, or replace the whole page.                                                                |
 | `preserve` | Protocol, technical contract, external product, official mobile app, reward, or source-data identity. Reason is recorded per entry. |
-| `override` | An intentional reviewed departure from a preserved value. |
+| `override` | An intentional reviewed departure from a preserved value.                                                                           |
 
 Preserved entries cannot be edited accidentally: the loader rejects a changed
 `value` until you explicitly change the category to `override`. Inspect the
@@ -140,22 +161,22 @@ when behavior or substantial copy also needs to change.
 
 ## Resources you can replace
 
-| Editable resource | Where it appears |
-| --- | --- |
-| `brand-logo.svg` | Central Logo component, standalone/auth headers, cast image exports. |
-| `brand-filled-logo.svg` | Filled sidebar logo. |
-| `brand-wordmark.svg` | Landing-page inline wordmark replacement. |
-| `favicon-v3.png` | Browser tab and branded wallet connection icon. |
-| `favicon-notifications-v3.png` | Browser tab with unread notifications. |
-| `og-logo-v3.png` | Apple touch icon. |
-| `opengraph.png` | Default branded social-preview image. |
-| `512x512-v2.png`, `1024x1024-v2.png`, `256x256-v2.png` | Install icons and existing public image consumers. |
-| `brand/farcaster-icon.svg`, `brand/farcaster-combo.svg` | Logo context-menu downloads (independent of displayed logo files). |
-| `referral-info-splash.png` | Existing referral artwork. |
-| `matrix_bg_500x500_v2.mp4` | Mobile Matrix landing background, served at `/brand/landing-video.mp4`. |
-| `matrix_bg_1080x1080.mp4` | Desktop Matrix loop at widths of 1024px and above, served at `/brand/landing-video-desktop.mp4`. |
-| `matrix_bg_500x500_poster.webp` | Still background for loading, reduced-motion, and data-saving preferences. |
-| `manifest.json` | Full PWA manifest; only explicit string placeholders expand. |
+| Editable resource                                       | Where it appears                                                                                 |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `brand-logo.svg`                                        | Central Logo component, standalone/auth headers, cast image exports.                             |
+| `brand-filled-logo.svg`                                 | Filled sidebar logo.                                                                             |
+| `brand-wordmark.svg`                                    | Landing-page inline wordmark replacement.                                                        |
+| `favicon-v3.png`                                        | Browser tab and branded wallet connection icon.                                                  |
+| `favicon-notifications-v3.png`                          | Browser tab with unread notifications.                                                           |
+| `og-logo-v3.png`                                        | Apple touch icon.                                                                                |
+| `opengraph.png`                                         | Default branded social-preview image.                                                            |
+| `512x512-v2.png`, `1024x1024-v2.png`, `256x256-v2.png`  | Install icons and existing public image consumers.                                               |
+| `brand/farcaster-icon.svg`, `brand/farcaster-combo.svg` | Logo context-menu downloads (independent of displayed logo files).                               |
+| `referral-info-splash.png`                              | Existing referral artwork.                                                                       |
+| `matrix_bg_500x500_v2.mp4`                              | Mobile Matrix landing background, served at `/brand/landing-video.mp4`.                          |
+| `matrix_bg_1080x1080.mp4`                               | Desktop Matrix loop at widths of 1024px and above, served at `/brand/landing-video-desktop.mp4`. |
+| `matrix_bg_500x500_poster.webp`                         | Still background for loading, reduced-motion, and data-saving preferences.                       |
+| `manifest.json`                                         | Full PWA manifest; only explicit string placeholders expand.                                     |
 
 Every mapping has a `target` (the web app's original module or public path) and
 `replacement` (the editable file relative to this directory). A new public

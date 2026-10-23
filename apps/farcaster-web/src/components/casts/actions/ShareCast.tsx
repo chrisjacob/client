@@ -12,6 +12,7 @@ import {
 } from 'farcaster-client-hooks';
 import React, { useLayoutEffect, useMemo, useState } from 'react';
 
+import { prefetchShareIcon } from '~/components/casts/actions/prefetchShareIcon';
 import { CastActionProps } from '~/components/casts/actions/types';
 import { Image as ImageComponent } from '~/components/images/Image';
 import { CastImageViewerModal } from '~/components/modals/CastImageViewerModal';
@@ -45,7 +46,7 @@ function CastShareMiniAppMenuItem({
   miniApp: ApiFrame;
   cast: ApiCast;
   onClick: () => void;
-  prefetchImage: Promise<HTMLImageElement>;
+  prefetchImage: Promise<HTMLImageElement | null>;
 }) {
   const { launchMiniApp } = useMinimizableWindowContext();
   const [loadedImageSrc, setLoadedImageSrc] = useState<string | null>(null);
@@ -67,28 +68,31 @@ function CastShareMiniAppMenuItem({
 
   // Once the image is prefetched, set it to the state
   useLayoutEffect(() => {
-    if (prefetchImage) {
-      prefetchImage
-        .then((image) => {
-          setLoadedImageSrc(image.src);
-        })
-        .catch(() => {
-          setDidImageFailToLoad(true);
-        });
-    }
+    let active = true;
+    setLoadedImageSrc(null);
+    setDidImageFailToLoad(false);
+    void prefetchImage.then((image) => {
+      if (active) {
+        setLoadedImageSrc(image?.src ?? null);
+        setDidImageFailToLoad(image === null);
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [prefetchImage]);
 
   const renderIcon = useMemo(() => {
+    // Stop the loading animation when an icon cannot be fetched.
+    if (didImageFailToLoad) {
+      return <div className="mx-0.5 size-4 rounded bg-overlay-faint" />;
+    }
+
     // If we have a prefetch promise and image isn't loaded yet, show placeholder
     if (!loadedImageSrc) {
       return (
         <div className="mx-0.5 size-4 animate-pulse rounded bg-overlay-faint" />
       );
-    }
-
-    // If image failed to load, show placeholder
-    if (didImageFailToLoad) {
-      return <div className="mx-0.5 size-4 rounded bg-overlay-faint" />;
     }
 
     return (
@@ -145,12 +149,7 @@ const ShareCast: React.FC<CastActionProps> = React.memo(({ cast }) => {
         windowWidth: window.innerWidth,
         width: 12,
       });
-      return new Promise<HTMLImageElement>((resolve, reject) => {
-        const img = new Image();
-        img.src = cfUrl;
-        img.onload = () => resolve(img);
-        img.onerror = (error) => reject(error);
-      });
+      return prefetchShareIcon(cfUrl);
     });
   }, [miniApps]);
 

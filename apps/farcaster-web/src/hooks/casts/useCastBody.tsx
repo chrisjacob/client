@@ -8,7 +8,8 @@ import {
   ClientProcessedMedia,
   getCastEmbedLayout,
   isSnapEmbed,
-  useCastAttachmentCache,
+  mergeCastAttachmentEmbeds,
+  useCachedCastAttachment,
   useTelemetry,
   useTrackCastClick,
 } from 'farcaster-client-hooks';
@@ -17,6 +18,7 @@ import React, { ReactNode, useCallback, useMemo } from 'react';
 import { FrameEmbedAttachment } from '~/components/attachments/FrameEmbedAttachment';
 import { GroupInviteAttachment } from '~/components/attachments/GroupInviteAttachment';
 import { ImageAttachments } from '~/components/attachments/ImageAttachments';
+import { KlipyVideoAttachment } from '~/components/attachments/KlipyVideoAttachment';
 import { OpenGraphAttachment } from '~/components/attachments/OpenGraphAttachment';
 import { QuoteCast } from '~/components/attachments/QuoteCast';
 import { RichOpenGraphCastAttachment } from '~/components/attachments/RichOpenGraphAttachment';
@@ -27,13 +29,13 @@ import {
   SpaceEmbedAttachment,
 } from '~/components/attachments/SpaceEmbedAttachment';
 import { UnsupportedEmbed } from '~/components/attachments/UnsupportedEmbed';
-import { VideoAttachment } from '~/components/attachments/VideoAttachment';
 import { ImageLightboxModal } from '~/components/modals/ImageLightboxModal';
 import { LinkifiedText } from '~/components/text/LinkifiedText';
 import { useUserAppContext } from '~/contexts/UserAppContextProvider';
 import {
   getCastImageMediaForRendering,
   getCastVideoUrlForRendering,
+  normalizeKlipyCastEmbeds,
   processForkMediasForRendering,
 } from '~/fork/klipyMediaRendering';
 import { getRenderableEmbeds } from '~/utils/castUtils';
@@ -71,7 +73,7 @@ const removeTrailingSpaceUrl = ({
 const useCastAttachment = ({
   cast,
   text,
-  embeds,
+  embeds: upstreamEmbeds,
   isFocusedCast,
   draggingRef,
   onMiniAppLaunch,
@@ -84,6 +86,10 @@ const useCastAttachment = ({
   onMiniAppLaunch?: () => void;
 }) => {
   const telemetry = useTelemetry();
+  const embeds = useMemo(
+    () => normalizeKlipyCastEmbeds(upstreamEmbeds),
+    [upstreamEmbeds],
+  );
   const renderableEmbeds = getRenderableEmbeds({
     castText: text,
     embeds,
@@ -365,7 +371,7 @@ const useCastAttachment = ({
               .filter((o) => o.type === 'video')
               .map(({ data: video }, videoIndex) => {
                 return (
-                  <VideoAttachment
+                  <KlipyVideoAttachment
                     key={videoIndex}
                     url={getCastVideoUrlForRendering(video)}
                     videoWidth={video.width!}
@@ -450,7 +456,7 @@ const useCastAttachment = ({
               .filter((o) => o.type === 'video')
               .map(({ data: video }, videoIndex) => {
                 return (
-                  <VideoAttachment
+                  <KlipyVideoAttachment
                     key={videoIndex}
                     url={getCastVideoUrlForRendering(video)}
                     videoWidth={video.width!}
@@ -604,15 +610,17 @@ const useCastBody = ({
   draggingRef: React.RefObject<boolean>;
   onMiniAppLaunch?: () => void;
 }): CastBody => {
-  const castAttachmentCache = useCastAttachmentCache();
   useTrackCastClick();
 
-  const cachedValue = castAttachmentCache({
+  const cachedValue = useCachedCastAttachment({
     fid: cast.author.fid,
     hash: cast.hash,
   });
 
-  const embeds = cast.embeds || cachedValue?.embeds;
+  const embeds = useMemo(
+    () => mergeCastAttachmentEmbeds(cast.embeds, cachedValue?.embeds),
+    [cast.embeds, cachedValue?.embeds],
+  );
 
   const {
     bodyTextOverride,

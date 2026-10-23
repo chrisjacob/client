@@ -4,7 +4,9 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import test from 'node:test';
+import { setTimeout } from 'node:timers';
 import { spawnSync } from 'node:child_process';
+import { runInNewContext } from 'node:vm';
 import {
   appRoot,
   brandThemeCss,
@@ -36,6 +38,52 @@ const custom = {
   },
 };
 const file = 'src/pages/test/Test.tsx';
+
+test('first paint uses the branded Dark default and respects saved Light/System choices', () => {
+  const upstream = readFileSync(path.join(appRoot, 'index.html'), 'utf8');
+  const html = transformBrandHtml(upstream, branding.config);
+  assert.match(html, /<html data-default-theme="dark"/);
+  assert.doesNotMatch(upstream, /<html data-default-theme="dark"/);
+  const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+  for (const [stored, osDark, expected] of [
+    [null, false, 'dark'],
+    ['invalid', false, 'dark'],
+    ['light', true, 'light'],
+    ['dark', false, 'dark'],
+    ['system', false, 'light'],
+    ['system', true, 'dark'],
+    ['blocked', false, 'dark'],
+  ]) {
+    const classes = new Set();
+    const root = {
+      dataset: { defaultTheme: 'dark' },
+      classList: {
+        toggle(name, enabled) {
+          if (enabled) classes.add(name);
+          else classes.delete(name);
+        },
+      },
+      setAttribute(name, value) {
+        this[name] = value;
+      },
+    };
+    runInNewContext(script, {
+      document: { documentElement: root },
+      window: { matchMedia: () => ({ matches: osDark }) },
+      localStorage: {
+        getItem() {
+          if (stored === 'blocked') throw new Error('blocked');
+          return stored;
+        },
+      },
+    });
+    assert.ok(
+      classes.has(expected),
+      `${stored}/${osDark} should use ${expected}`,
+    );
+    assert.equal(classes.size, 1);
+  }
+});
 const entry = (kind, source, value, category = 'app') => ({
   file,
   kind,
@@ -231,7 +279,7 @@ test('dev middleware and production overlay serve the same resources without mod
   }
 });
 
-test('saving a replacement page updates its loaded module without restarting the tunnel origin', () => {
+test('saving replacement pages, docs and assets keeps the origin; config saves debounce', async () => {
   const plugin = whiteLabelPlugin({ VITE_10X_FEATURE_WHITELABEL: 'true' });
   let onChange;
   let restarts = 0;
@@ -243,7 +291,7 @@ test('saving a replacement page updates its loaded module without restarting the
       },
     },
     middlewares: { use() {} },
-    restart() {
+    async restart() {
       restarts++;
     },
   });
@@ -268,6 +316,8 @@ test('saving a replacement page updates its loaded module without restarting the
     },
   };
   onChange(replacement);
+  onChange(path.join(brandRoot, 'README.md'));
+  onChange(path.join(brandRoot, 'resources/public/brand-logo.svg'));
   assert.equal(restarts, 0);
   assert.deepEqual(plugin.handleHotUpdate(context), [dependency, loadedPage]);
   assert.deepEqual(plugin.handleHotUpdate({ ...context, modules: [] }), [
@@ -281,8 +331,43 @@ test('saving a replacement page updates its loaded module without restarting the
     undefined,
   );
   onChange(path.join(brandRoot, 'brand.json'));
+  onChange(path.join(brandRoot, 'strings.json'));
+  assert.equal(restarts, 0);
+  await new Promise((resolve) => setTimeout(resolve, 550));
   assert.equal(restarts, 1);
   assert.equal(whiteLabelPlugin({}).handleHotUpdate(context), undefined);
+});
+
+test('incomplete source/catalogue edits warn in development and still fail production', () => {
+  const fixture = path.join(
+    appRoot,
+    `src/branding-validation-${process.pid}.ts`,
+  );
+  writeFileSync(
+    fixture,
+    'export const name = "Farcaster temporary audit fixture";',
+  );
+  try {
+    const plugin = whiteLabelPlugin({ VITE_10X_FEATURE_WHITELABEL: 'true' });
+    const warnings = [];
+    const context = {
+      warn: (message) => warnings.push(message),
+      error: (message) => {
+        throw new Error(message);
+      },
+    };
+    plugin.configResolved({ command: 'serve' });
+    plugin.buildStart.call(context);
+    assert.equal(warnings.length, 1);
+    assert.match(warnings[0], /NEW .*branding-validation/);
+    plugin.configResolved({ command: 'build' });
+    assert.throws(
+      () => plugin.buildStart.call(context),
+      /White-label review required/,
+    );
+  } finally {
+    rmSync(fixture);
+  }
 });
 
 test('audit detects new, removed, repeated, and changed upstream references without rewriting owner content', () => {

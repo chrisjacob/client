@@ -311,7 +311,8 @@ const UnfocusedCastContent: FC<UnfocusedCastProps> = memo(
             'relative cursor-pointer',
             shouldShowTopBorder && 'border-t !border-surface-secondary',
             shouldShowBottomBorder && 'border-b !border-surface-secondary',
-            isHighlighted && 'bg-[#F5F4FF] dark:bg-[#1F182C]',
+            isHighlighted &&
+              'bg-[var(--notification-unread-light,#F5F4FF)] dark:bg-[var(--notification-unread-dark,#1F182C)]',
             isAppsDialog ? 'py-4' : 'py-2 hover:bg-overlay-faint',
           )}
           onMouseOver={onMouseOver}

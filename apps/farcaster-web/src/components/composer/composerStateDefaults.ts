@@ -24,9 +24,23 @@ const getEmbedUrlsForLocalKey = ({
   localKey: number;
 }) => embedUrls[localKey] ?? EMPTY_EMBED_URLS;
 
+const getComposerImageUrlForRemoval = ({
+  images,
+  previewSrc,
+}: {
+  images: CastComposerEmbedsReturn['embeds'][number]['images'];
+  previewSrc: string;
+}): string | undefined =>
+  images.find((image) =>
+    image.version === 'v2'
+      ? image.localUriRef === previewSrc
+      : image.url === previewSrc,
+  )?.url;
+
 export {
   EMPTY_CAST_COMPOSER_EMBEDS,
   EMPTY_EMBED_URLS,
   getCastComposerEmbedsForLocalKey,
+  getComposerImageUrlForRemoval,
   getEmbedUrlsForLocalKey,
 };

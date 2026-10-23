@@ -95,6 +95,11 @@
   ],
   "source": [
     {
+      "target": "src/components/login/LoginQRCodeWithInstructions.tsx",
+      "replacement": "resources/source/LoginQRCodeWithInstructions.tsx",
+      "upstreamSha256": "4b67992a200e06ef962374ea19f5587c0656c7451b8b404bb0684d4b73978060"
+    },
+    {
       "target": "src/pages/termsOfUse/TermsOfUsePage.tsx",
       "replacement": "resources/source/TermsOfUsePage.tsx",
       "upstreamSha256": "380eda3d0d3dc7f9b4a507e48f43324121897bdf6a066af1cf573d0d76e127a1"

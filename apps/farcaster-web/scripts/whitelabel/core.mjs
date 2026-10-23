@@ -413,8 +413,9 @@ export function brandThemeCss(config) {
       ),
     )
     .join('');
-  return `html{${palette}--brand-on-action:${colors.onActionLight};--brand-overlay:${colors.light[4]}66;--brand-overlay-hover:${colors.light[4]}b0;}
+  return `html{${palette}--brand-on-action:${colors.onActionLight};--brand-overlay:${colors.light[4]}66;--brand-overlay-hover:${colors.light[4]}b0;--notification-unread-light:var(--brand-light-100);--notification-unread-dark:var(--brand-dark-200);}
 html.dark{--brand-on-action:${colors.onActionDark};}
+html .cast-image-embed{background-color:transparent;border:0;}
 html.dark .bg-action-primary:hover:not(:disabled){background-color:${colors.dark[5]};}
 html .bg-action-primary:not(:disabled),html .bg-brand,html.dark .bg-brand{color:var(--brand-on-action);}
 html .bg-action-primary:not(:disabled) .text-light,html .bg-brand .text-light{color:inherit;}
@@ -425,10 +426,12 @@ html.dark .Toastify{--toastify-color-info:${colors.dark[4]};}`;
 }
 
 export function transformBrandHtml(html, config) {
-  const titled = html.replace(
-    /<title>[^<]*<\/title>/,
-    () => `<title>${escapeHtml(config.appName)}</title>`,
-  );
+  const titled = html
+    .replace(/<html\b/, '<html data-default-theme="dark"')
+    .replace(
+      /<title>[^<]*<\/title>/,
+      () => `<title>${escapeHtml(config.appName)}</title>`,
+    );
   const fields = [
     ['name', 'description', config.description],
     ['property', 'og:title', config.appName],

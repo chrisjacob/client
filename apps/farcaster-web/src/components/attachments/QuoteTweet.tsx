@@ -160,7 +160,7 @@ function QuoteTweetImageEmbed({ image }: { image: Attachment }) {
         alt={'quote image'}
         width={128}
         height={128}
-        className="aspect-square content-center rounded-[12px] border object-cover object-left-top border-default"
+        className="cast-image-embed aspect-square content-center rounded-[12px] border object-cover object-left-top border-default"
       />
     </div>
   );

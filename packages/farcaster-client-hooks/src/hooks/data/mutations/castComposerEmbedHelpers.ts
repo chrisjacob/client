@@ -10,6 +10,7 @@ import {
   isQuoteCastUrl,
   stripQuoteCastUrlEmbeds,
 } from '../../../utils/quoteCastUrls';
+import { mergeCastAttachmentEmbeds } from '../queries/castAttachmentCache/mergeCastAttachmentEmbeds';
 
 /**
  * The source of a URL or snap embed – distinguishes how it arrived so that
@@ -570,6 +571,41 @@ export function apiEmbedsForCast(embeds: CastComposerEmbed[]): ApiCastEmbeds {
   }
 
   return { images, videos, urls, unknowns: [] };
+}
+
+/** Build the local post preview from the same attachments as the submitted cast. */
+export function submittedCastPreviewEmbeds(
+  canonical: CastComposerEmbed[],
+  processed?: ApiCastEmbeds,
+): ApiCastEmbeds {
+  const ready = apiEmbedsForCast(canonical);
+  const urls = new Set(embedUrlsForCast(canonical));
+  const matchesMedia = ({
+    url,
+    sourceUrl,
+  }: {
+    url: string;
+    sourceUrl: string;
+  }) => urls.has(url) || urls.has(sourceUrl);
+  return (
+    mergeCastAttachmentEmbeds(
+      ready,
+      processed && {
+        ...processed,
+        images: (processed.images ?? []).filter(matchesMedia),
+        videos: (processed.videos ?? []).filter(matchesMedia),
+        urls: (processed.urls ?? []).filter(
+          ({ openGraph }) =>
+            urls.has(openGraph.sourceUrl ?? openGraph.url) ||
+            urls.has(openGraph.url),
+        ),
+        unknowns: (processed.unknowns ?? []).filter(({ source }) =>
+          urls.has(source),
+        ),
+        casts: processed.casts?.filter(({ hash }) => urls.has(hash)),
+      },
+    ) ?? ready
+  );
 }
 
 /**

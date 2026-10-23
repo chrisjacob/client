@@ -44,6 +44,7 @@ import {
   pruneProcessedUrlEmbedsByUrls,
   pruneProcessedUrlEmbedsToCanonicalUrls,
   removeEmbedsFromCast,
+  submittedCastPreviewEmbeds,
   syncEmbedsBySourceForCast,
   urlSnapEmbedMatchesAnyUrl,
 } from './castComposerEmbedHelpers';
@@ -318,6 +319,7 @@ export type CastComposerEmbedsReturn = {
    * Throws if any media upload has failed.
    */
   getEmbedsToSubmit: (castLocalKey: number) => Promise<string[]>;
+  getSubmittedPreviewEmbeds: (castLocalKey: number) => ApiCastEmbeds;
   /**
    * Await in-flight upload promises and return ordered draft-persisted URLs.
    * Text-derived embeds are intentionally omitted; they are recreated from
@@ -2152,6 +2154,15 @@ export const useCastComposerEmbeds = ({
   const { getEmbedsToStoreForDraft, getEmbedsToSubmit } =
     useCastComposerSubmitEmbeds({ canonicalEmbeds });
 
+  const getSubmittedPreviewEmbeds = useCallback(
+    (castLocalKey: number) =>
+      submittedCastPreviewEmbeds(
+        canonicalEmbedsRef.current[castLocalKey] ?? [],
+        processedEmbeds[castLocalKey],
+      ),
+    [processedEmbeds],
+  );
+
   return {
     embeds,
     embedUrls,
@@ -2180,6 +2191,7 @@ export const useCastComposerEmbeds = ({
     removeEmbed,
     syncEmbedsBySource,
     getEmbedsToSubmit,
+    getSubmittedPreviewEmbeds,
     getEmbedsToStoreForDraft,
   };
 };

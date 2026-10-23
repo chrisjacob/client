@@ -52,6 +52,7 @@ const ComposerVideoAttachment: React.FC<ComposerVideoAttachmentProps> = ({
           aspectRatio,
         }}
         autoPlay={true}
+        playsInline
         loop={true}
         muted={muted}
       />

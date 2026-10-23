@@ -46,29 +46,45 @@ const syncDevicesErrorMessage = 'We were unable to sync your devices';
 
 type LoginWithMobileProps = {
   onClose: () => void;
+  initialChannelId?: string;
+  presentation?: 'qr' | 'app-link';
 };
 
-const LoginWithMobile: FC<LoginWithMobileProps> = memo(({ onClose }) => {
-  const [key, setKey] = useState(Date.now().toString());
+const LoginWithMobile: FC<LoginWithMobileProps> = memo(
+  ({ onClose, initialChannelId, presentation = 'qr' }) => {
+    const [attempt, setAttempt] = useState(() => ({
+      key: Date.now().toString(),
+      initialChannelId,
+    }));
 
-  const restart = useCallback(() => {
-    setKey(Date.now().toString());
-  }, []);
+    const restart = useCallback(() => {
+      // A retry must generate a fresh channel, not reuse the original app link.
+      setAttempt({ key: Date.now().toString(), initialChannelId: undefined });
+    }, []);
 
-  return (
-    <LoginWithMobileContent key={key} onClose={onClose} restart={restart} />
-  );
-});
+    return (
+      <LoginWithMobileContent
+        key={attempt.key}
+        initialChannelId={attempt.initialChannelId}
+        presentation={presentation}
+        onClose={onClose}
+        restart={restart}
+      />
+    );
+  },
+);
 
 LoginWithMobile.displayName = 'LoginWithMobile';
 
 type LoginWithMobileContentProps = {
   onClose: () => void;
   restart: () => void;
+  initialChannelId?: string;
+  presentation: 'qr' | 'app-link';
 };
 
 const LoginWithMobileContent: FC<LoginWithMobileContentProps> = memo(
-  ({ onClose, restart }) => {
+  ({ onClose, restart, initialChannelId, presentation }) => {
     const { trackEvent, dangerouslyTrackPreAuthEvent } = useAnalytics();
     const { inStandaloneMode } = useStandaloneMode();
     const { apiClient } = useFarcasterApiClient();
@@ -77,7 +93,7 @@ const LoginWithMobileContent: FC<LoginWithMobileContentProps> = memo(
 
     const hasStartedCreatingSyncChannelRef = useRef(false);
 
-    const channelId = useRef(createUUID()).current;
+    const channelId = useRef(initialChannelId ?? createUUID()).current;
 
     const pollForLatestSyncChannelMessage =
       usePollForLatestSyncChannelMessage();
@@ -224,6 +240,26 @@ const LoginWithMobileContent: FC<LoginWithMobileContentProps> = memo(
     }, [trackEvent]);
 
     const body = useMemo(() => {
+      if (presentation === 'app-link') {
+        return (
+          <div className="space-y-3 text-center text-sm text-white/80">
+            <p role={error ? 'alert' : 'status'}>
+              {error ??
+                (attemptingLogin
+                  ? 'Finishing login…'
+                  : 'Approve in Farcaster, then return to this tab.')}
+            </p>
+            <button
+              type="button"
+              onClick={onClose}
+              className="underline underline-offset-4"
+            >
+              {error ? 'Start over' : 'Cancel login'}
+            </button>
+          </div>
+        );
+      }
+
       if (error) {
         return <LoginError message={error} restart={restart} />;
       }
@@ -235,11 +271,15 @@ const LoginWithMobileContent: FC<LoginWithMobileContentProps> = memo(
           attemptingLogin={attemptingLogin}
         />
       );
-    }, [attemptingLogin, channelId, error, onClose, restart]);
+    }, [attemptingLogin, channelId, error, onClose, presentation, restart]);
 
     useEffect(() => {
       createChannelAndPollForAuthToken();
     }, [createChannelAndPollForAuthToken]);
+
+    if (presentation === 'app-link') {
+      return body;
+    }
 
     return (
       <div className="min-h-[264px] w-full">

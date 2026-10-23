@@ -308,7 +308,7 @@ function QuoteCastImageEmbed({ image }: { image: ClientProcessedMedia }) {
         alt={'quote image'}
         width={128}
         height={128}
-        className="aspect-square content-center rounded-[12px] border object-cover border-default"
+        className="cast-image-embed aspect-square content-center rounded-[12px] border object-cover border-default"
       />
     </div>
   );

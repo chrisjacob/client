@@ -21,6 +21,8 @@ type KlipyMediaItem = {
   width: number;
   height: number;
   type: KlipyMediaType;
+  shareSlug?: string;
+  pageUrl?: string;
 };
 
 type KlipySearchResponse = {
@@ -77,8 +79,17 @@ const formatPriority: Record<
     ],
   },
   clip: {
-    full: ['mp4', 'webm'],
-    preview: ['tinygif', 'nanogif', 'tinymp4', 'tinywebm', 'mp4'],
+    full: ['mp4', 'webm', 'tinymp4', 'tinywebm'],
+    preview: [
+      'tinygif',
+      'nanogif',
+      'webp',
+      'gif',
+      'tinymp4',
+      'tinywebm',
+      'mp4',
+      'webm',
+    ],
   },
   meme: {
     full: ['gif', 'webp', 'png', 'jpg', 'jpeg', 'preview'],
@@ -113,6 +124,41 @@ function isAllowedKlipyMediaUrl(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+function getKlipyClipPageSlug(value: string): string | undefined {
+  try {
+    const url = new URL(value);
+    if (
+      url.protocol !== 'https:' ||
+      !['klipy.com', 'www.klipy.com'].includes(url.host) ||
+      url.username ||
+      url.password
+    ) {
+      return undefined;
+    }
+    const match = url.pathname.match(/^\/clips\/([^/]+)\/?$/);
+    if (!match) {
+      return undefined;
+    }
+    const slug = decodeURIComponent(match[1]);
+    return slug &&
+      slug.length <= 180 &&
+      !slug.includes('/') &&
+      !slug.includes('\\') &&
+      Array.from(slug).every((character) => {
+        const code = character.charCodeAt(0);
+        return code >= 32 && code !== 127;
+      })
+      ? slug
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function isKlipyClipPageUrl(value: string): boolean {
+  return getKlipyClipPageSlug(value) !== undefined;
 }
 
 function canEmbedKlipyUrl(url: string): boolean {
@@ -177,6 +223,71 @@ function normalizeKlipyResponse(
 ): KlipySearchResponse {
   if (!isRecord(payload)) {
     return { results: [], next: '' };
+  }
+
+  // The native Clips API supplies file URLs and dimensions separately. Its
+  // compatibility endpoint can return clips with an empty media_formats array.
+  if (type === 'clip' && isRecord(payload.data)) {
+    const page = payload.data;
+    const items = Array.isArray(page.data) ? page.data : [];
+    const slugs = new Map<string, string>();
+    const pages = new Map<string, string>();
+    const results = items.flatMap((item) => {
+      if (
+        !isRecord(item) ||
+        item.type !== 'clip' ||
+        !isRecord(item.file) ||
+        !isRecord(item.file_meta)
+      ) {
+        return [];
+      }
+      const fileMeta = item.file_meta;
+      if (typeof item.slug === 'string') {
+        slugs.set(String(item.id), item.slug);
+      }
+      if (
+        typeof item.url === 'string' &&
+        isKlipyClipPageUrl(item.url) &&
+        new TextEncoder().encode(item.url).length <=
+          FARCASTER_EMBED_URL_MAX_BYTES
+      ) {
+        pages.set(String(item.id), item.url);
+      }
+      const mediaFormats = Object.fromEntries(
+        Object.entries(item.file).map(([format, url]) => {
+          const meta = fileMeta[format];
+          return [
+            format,
+            {
+              url,
+              dims: isRecord(meta) ? [meta.width, meta.height] : [],
+            },
+          ];
+        }),
+      );
+      return [{ ...item, media_formats: mediaFormats }];
+    });
+    const currentPage = Number(page.current_page);
+    const normalized = normalizeKlipyResponse(
+      {
+        results,
+        next:
+          page.has_next === true &&
+          Number.isSafeInteger(currentPage) &&
+          currentPage > 0
+            ? String(currentPage + 1)
+            : '',
+      },
+      'clip',
+    );
+    return {
+      ...normalized,
+      results: normalized.results.map((item) => ({
+        ...item,
+        shareSlug: slugs.get(item.id),
+        pageUrl: pages.get(item.id),
+      })),
+    };
   }
 
   const rawResults = Array.isArray(payload.results) ? payload.results : [];
@@ -264,6 +375,57 @@ function buildKlipyRequestUrl({
   return url.href;
 }
 
+function buildKlipyClipRequestUrl({
+  endpoint,
+  apiKey,
+  params,
+}: {
+  endpoint: 'trending' | 'search' | 'items';
+  apiKey: string;
+  params: URLSearchParams;
+}): string {
+  const url = new URL(
+    `/api/v1/${encodeURIComponent(apiKey)}/clips/${endpoint}`,
+    KLIPY_API_ORIGIN,
+  );
+  url.search = params.toString();
+  return url.href;
+}
+
+async function fetchKlipyClip({
+  pageUrl,
+  signal,
+}: {
+  pageUrl: string;
+  signal?: AbortSignal;
+}): Promise<KlipyMediaItem> {
+  const slug = getKlipyClipPageSlug(pageUrl);
+  if (!slug) {
+    throw new Error('Invalid KLIPY clip page.');
+  }
+  const response = await fetch(
+    buildKlipyClipRequestUrl({
+      endpoint: 'items',
+      apiKey: getKlipyApiKey(),
+      params: new URLSearchParams({ slugs: slug }),
+    }),
+    { headers: { Accept: 'application/json' }, signal },
+  );
+  const payload: unknown = await response.json().catch(() => undefined);
+  if (!response.ok || !isRecord(payload) || payload.result !== true) {
+    throw new Error('KLIPY clip is unavailable.');
+  }
+  const item = normalizeKlipyResponse(payload, 'clip').results.find(
+    (item) =>
+      item.shareSlug === slug ||
+      (item.pageUrl && getKlipyClipPageSlug(item.pageUrl) === slug),
+  );
+  if (!item) {
+    throw new Error('KLIPY clip is unavailable.');
+  }
+  return item;
+}
+
 async function searchKlipyMedia({
   query,
   type,
@@ -279,6 +441,43 @@ async function searchKlipyMedia({
   const { country, locale } = getBrowserLocale();
   const mediaConfig = mediaConfigs[type];
   const trimmedQuery = query.trim();
+  if (type === 'clip') {
+    const page = position ?? '1';
+    if (
+      !/^\d+$/.test(page) ||
+      !Number.isSafeInteger(Number(page)) ||
+      Number(page) < 1
+    ) {
+      throw new Error('Invalid KLIPY Clips page.');
+    }
+    const params = new URLSearchParams({
+      page,
+      per_page: RESULT_LIMIT,
+      locale: country,
+    });
+    if (trimmedQuery) {
+      params.set('q', trimmedQuery);
+    }
+    const response = await fetch(
+      buildKlipyClipRequestUrl({
+        endpoint: trimmedQuery ? 'search' : 'trending',
+        apiKey,
+        params,
+      }),
+      { headers: { Accept: 'application/json' }, signal },
+    );
+    const payload: unknown = await response.json().catch(() => undefined);
+    if (
+      !response.ok ||
+      !isRecord(payload) ||
+      payload.result !== true ||
+      !isRecord(payload.data) ||
+      !Array.isArray(payload.data.data)
+    ) {
+      throw new Error('KLIPY Clips search is temporarily unavailable.');
+    }
+    return normalizeKlipyResponse(payload, type);
+  }
   const params = new URLSearchParams({
     contentfilter: 'medium',
     country,
@@ -314,14 +513,39 @@ async function searchKlipyMedia({
 async function registerKlipyShare({
   id,
   query,
+  type,
+  slug,
 }: {
   id: string;
   query: string;
+  type?: KlipyMediaType;
+  slug?: string;
 }): Promise<void> {
   const apiKey = getKlipyApiKey();
   const { country, locale } = getBrowserLocale();
   const params = new URLSearchParams({ country, id, locale });
   const trimmedQuery = query.trim();
+  if (type === 'clip' && slug) {
+    const url = new URL(
+      `/api/v1/${encodeURIComponent(apiKey)}/clips/share/${encodeURIComponent(slug)}`,
+      KLIPY_API_ORIGIN,
+    );
+    const response = await fetch(url.href, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        locale: country,
+        ...(trimmedQuery ? { q: trimmedQuery } : {}),
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('KLIPY Clip share registration failed.');
+    }
+    return;
+  }
   if (trimmedQuery) {
     params.set('q', trimmedQuery);
   }
@@ -338,10 +562,19 @@ function createKlipyComposerEmbed(item: KlipyMediaItem): CastComposerEmbed {
 
   const id = `klipy-${item.id}-${crypto.randomUUID()}`;
   if (item.mediaKind === 'video') {
+    // Other clients can unfurl KLIPY's HTML page; the raw MP4 often has no
+    // upstream preview. Keep the actual MP4 for this client's inline player.
+    const sharedUrl =
+      item.pageUrl &&
+      isKlipyClipPageUrl(item.pageUrl) &&
+      new TextEncoder().encode(item.pageUrl).length <=
+        FARCASTER_EMBED_URL_MAX_BYTES
+        ? item.pageUrl
+        : item.mediaUrl;
     return {
       id,
       kind: 'video',
-      url: item.mediaUrl,
+      url: sharedUrl,
       localUriRef: item.mediaUrl,
       videoId: id,
       uploadStatus: 'uploaded',
@@ -351,7 +584,7 @@ function createKlipyComposerEmbed(item: KlipyMediaItem): CastComposerEmbed {
       apiVideoEmbed: {
         type: 'video',
         url: item.mediaUrl,
-        sourceUrl: item.mediaUrl,
+        sourceUrl: sharedUrl,
         width: item.width,
         height: item.height,
         thumbnailUrl: item.previewUrl,
@@ -386,11 +619,15 @@ function createKlipyComposerEmbed(item: KlipyMediaItem): CastComposerEmbed {
 }
 
 export {
+  buildKlipyClipRequestUrl,
   buildKlipyRequestUrl,
   canEmbedKlipyUrl,
   createKlipyComposerEmbed,
+  fetchKlipyClip,
+  getKlipyClipPageSlug,
   getKlipyMediaMimeType,
   isAllowedKlipyMediaUrl,
+  isKlipyClipPageUrl,
   type KlipyMediaItem,
   type KlipyMediaType,
   klipyMediaTypes,

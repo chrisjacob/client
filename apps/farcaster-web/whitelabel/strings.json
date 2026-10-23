@@ -709,6 +709,15 @@
     "reason": "External protocol, official app/service, paid product, reward, or source-data identity; do not imply it is supplied by this fork."
   },
   {
+    "file": "src/components/login/LoginWithMobile.tsx",
+    "kind": "literal",
+    "source": "Approve in Farcaster, then return to this tab.",
+    "count": 1,
+    "category": "preserve",
+    "value": "Approve in Farcaster, then return to this tab.",
+    "reason": "Approval takes place in the official Farcaster app, not the 10X client."
+  },
+  {
     "file": "src/components/miniApp/MiniApp.tsx",
     "kind": "literal",
     "source": ".neynar.app",

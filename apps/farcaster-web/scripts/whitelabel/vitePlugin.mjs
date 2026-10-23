@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { readFileSync } from 'node:fs';
 import { URL } from 'node:url';
+import { clearTimeout, setTimeout } from 'node:timers';
 import {
   appRoot,
   auditBranding,
@@ -23,6 +24,7 @@ const contentType = (filename) =>
   })[path.extname(filename)] || 'application/octet-stream';
 
 export function whiteLabelPlugin(environment) {
+  let development = false;
   const enabled = flagEnabled(environment.VITE_10X_FEATURE_WHITELABEL);
   // Disabled builds do not load, validate, or publish alternate resources.
   const branding = enabled ? loadBranding() : undefined;
@@ -62,6 +64,9 @@ export function whiteLabelPlugin(environment) {
   return {
     name: '10x-whitelabel',
     enforce: 'pre',
+    configResolved(config) {
+      development = config.command === 'serve';
+    },
     config() {
       return {
         define: {
@@ -76,21 +81,37 @@ export function whiteLabelPlugin(environment) {
     buildStart() {
       if (!branding) return;
       const problems = auditBranding(branding);
-      if (problems.length)
-        this.error(
-          `White-label review required:\n${problems.join('\n')}\nRun pnpm branding:check; see whitelabel/README.md.`,
-        );
+      if (problems.length) {
+        const message = `White-label review required:\n${problems.join('\n')}\nRun pnpm branding:check; see whitelabel/README.md.`;
+        // Keep the origin available while source and catalogue edits are paired.
+        // Production builds and the standalone branding audit remain strict.
+        if (development) this.warn(message);
+        else this.error(message);
+      }
     },
     configureServer(server) {
       if (!branding) return;
+      const configurationFiles = new Set(
+        ['brand.json', 'strings.json', 'resources.json'].map((file) =>
+          path.join(brandRoot, file),
+        ),
+      );
+      let restartTimer;
+      server.httpServer?.once('close', () => clearTimeout(restartTimer));
       server.watcher.add(brandRoot);
       server.watcher.on('change', (file) => {
         const resolved = path.resolve(file);
         // Replacement modules participate in HMR below. Restarting here closes
         // the origin port and produces Bad Gateway responses through the tunnel.
         if (sourceTargetsByReplacement.has(resolved)) return;
-        if (resolved.startsWith(`${brandRoot}${path.sep}`))
-          void server.restart();
+        // README, backups and public assets do not change module configuration.
+        if (!configurationFiles.has(resolved)) return;
+        clearTimeout(restartTimer);
+        restartTimer = setTimeout(() => {
+          void server.restart().catch((error) => {
+            server.config.logger.error(`White-label restart failed: ${error}`);
+          });
+        }, 500);
       });
       server.middlewares.use((request, response, next) => {
         if (request.url?.split('?')[0] === '/robots.txt') {

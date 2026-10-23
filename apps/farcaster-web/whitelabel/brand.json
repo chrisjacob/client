@@ -40,7 +40,7 @@
   },
   "supportEmail": "support@10x.meme",
   "logoUrl": "/brand/logo.svg",
-  "filledLogoUrl": "/brand/filled-logo.svg",
+  "filledLogoUrl": "/256x256-v2.png",
   "wordmarkUrl": "/brand/wordmark.svg",
   "manifestDescription": "A sufficiently 10X social network."
 }

@@ -1,14 +1,17 @@
 import { AnalyticsEvent } from 'farcaster-analytics';
 import React, { useEffect, useState } from 'react';
 
+import { ExternalLink } from '~/components/links/ExternalLink';
 import { Link } from '~/components/links/Link';
+import { LoginWithMobile } from '~/components/login/LoginWithMobile';
 import { LogoBrandContextMenu } from '~/components/LogoBrandContextMenu';
-import { LoginMagicLinkModal } from '~/components/modals/LoginMagicLinkModal';
 import { LoginModal } from '~/components/modals/LoginModal';
 import { Page } from '~/components/page/Page';
 import { useAnalytics } from '~/contexts/AnalyticsProvider';
 import { forkConfig } from '~/fork/config';
 import { whiteLabel } from '~/fork/whiteLabel';
+import { isMobile } from '~/utils/navigatorUtils';
+import { createUUID } from '~/utils/uuidUtils';
 
 function LandingBackground() {
   const [playVideo, setPlayVideo] = useState(false);
@@ -119,10 +122,19 @@ function FullLogo() {
 }
 
 export function HomeLandingPage() {
-  const { dangerouslyTrackPreAuthEvent, trackEvent } = useAnalytics();
+  const { dangerouslyTrackPreAuthEvent } = useAnalytics();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isLoggingInWithMagicLink, setIsLoggingInWithMagicLink] =
-    useState(false);
+  const [mobile] = useState(isMobile);
+  const [directChannelId, setDirectChannelId] = useState(createUUID);
+  const closeLogin = () => {
+    setIsLoggingIn(false);
+    setDirectChannelId(createUUID());
+  };
+  const directLoginUrl = `https://farcaster.xyz/login-web?${new URLSearchParams(
+    {
+      'channel-id': directChannelId,
+    },
+  )}`;
   const copyrightEntity = '{{legalEntity}}'.replace(/\.$/, '');
 
   return (
@@ -167,29 +179,40 @@ export function HomeLandingPage() {
                 <div className="h-px grow bg-white/40" />
               </div>
 
-              <button
-                type="button"
-                className="w-full rounded-full border border-transparent bg-white/20 px-9 py-3 text-base text-white transition-colors hover:border-white/20 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FD00]"
-                onClick={() => {
-                  trackEvent(AnalyticsEvent.ClickedMagicLink, undefined);
-                  setIsLoggingInWithMagicLink(true);
-                }}
-              >
-                Log in with email
-              </button>
-              <button
-                type="button"
-                className="w-full rounded-full border border-transparent bg-white/20 px-9 py-3 text-base text-white transition-colors hover:border-white/20 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FD00]"
-                onClick={() => {
-                  dangerouslyTrackPreAuthEvent(
-                    AnalyticsEvent.ClickedLogin,
-                    undefined,
-                  );
-                  setIsLoggingIn(true);
-                }}
-              >
-                Log in with phone
-              </button>
+              {mobile ? (
+                <ExternalLink
+                  href={directLoginUrl}
+                  title="Log in with Farcaster"
+                  className="w-full rounded-full border border-transparent bg-white/20 px-9 py-3 text-base text-white transition-colors hover:border-white/20 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FD00]"
+                  onClick={() => {
+                    // Keep this tab waiting on the exact channel opened by the link.
+                    setIsLoggingIn(true);
+                  }}
+                >
+                  Log in with Farcaster
+                </ExternalLink>
+              ) : (
+                <button
+                  type="button"
+                  className="w-full rounded-full border border-transparent bg-white/20 px-9 py-3 text-base text-white transition-colors hover:border-white/20 hover:bg-white/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#00FD00]"
+                  onClick={() => {
+                    dangerouslyTrackPreAuthEvent(
+                      AnalyticsEvent.ClickedLogin,
+                      undefined,
+                    );
+                    setIsLoggingIn(true);
+                  }}
+                >
+                  Log in with phone
+                </button>
+              )}
+              {mobile && isLoggingIn && (
+                <LoginWithMobile
+                  initialChannelId={directChannelId}
+                  presentation="app-link"
+                  onClose={closeLogin}
+                />
+              )}
             </div>
           </div>
         </main>
@@ -234,12 +257,7 @@ export function HomeLandingPage() {
         </footer>
       </div>
 
-      {isLoggingIn && <LoginModal onClose={() => setIsLoggingIn(false)} />}
-      {isLoggingInWithMagicLink && (
-        <LoginMagicLinkModal
-          onClose={() => setIsLoggingInWithMagicLink(false)}
-        />
-      )}
+      {!mobile && isLoggingIn && <LoginModal onClose={closeLogin} />}
     </Page>
   );
 }

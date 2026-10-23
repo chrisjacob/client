@@ -34,6 +34,7 @@ import { useTokenMentionsComposerPlugin } from '~/components/composer/plugins/To
 import { ConfirmationModal } from '~/components/modals/ConfirmationModal';
 import { mdAvatarDiameter } from '~/constants/avatar';
 import { useUserAppContext } from '~/contexts/UserAppContextProvider';
+import { isAllowedKlipyMediaUrl, isKlipyClipPageUrl } from '~/fork/klipy';
 import { useCurrentUser } from '~/hooks/data/useCurrentUser';
 import { useIsDarkMode } from '~/hooks/useIsDarkMode';
 import { CastComposerIntent } from '~/types';
@@ -41,7 +42,10 @@ import { trackError } from '~/utils/errorUtils';
 import { toast } from '~/utils/toast';
 
 import { showComposerAttachmentLimitToast } from './composerAttachmentLimitToast';
-import { getCastComposerEmbedsForLocalKey } from './composerStateDefaults';
+import {
+  getCastComposerEmbedsForLocalKey,
+  getComposerImageUrlForRemoval,
+} from './composerStateDefaults';
 import { useOptimisticMediaEmbeds } from './context/OptimisticMediaEmbedsProvider';
 
 const deleteCastConfirmationBody = (
@@ -124,6 +128,7 @@ const QueuedCast: FC<QueuedCastProps> = memo(
       removeImageEmbedByUrl,
       removeUrlEmbed: baseRemoveUrlEmbed,
       removeVideoEmbed,
+      removeEmbed,
       uploadingStatuses,
       uploadingErrors,
       detailedUploadingErrors,
@@ -817,11 +822,23 @@ const QueuedCast: FC<QueuedCastProps> = memo(
                       );
 
                       if (typeof ev !== 'undefined') {
-                        removeVideoEmbed({
-                          videoId: ev.videoId,
-                          videoUrl: ev.url,
-                          castLocalKey: localKey,
-                        });
+                        if (
+                          isAllowedKlipyMediaUrl(ev.url) ||
+                          isKlipyClipPageUrl(ev.url)
+                        ) {
+                          // Direct clips are not uploads owned by Farcaster.
+                          removeEmbed({
+                            castLocalKey: localKey,
+                            predicate: (embed) =>
+                              embed.kind === 'video' && embed.url === ev.url,
+                          });
+                        } else {
+                          removeVideoEmbed({
+                            videoId: ev.videoId,
+                            videoUrl: ev.url,
+                            castLocalKey: localKey,
+                          });
+                        }
                       }
                     }}
                     queuedCastLocalKey={localKey}
@@ -848,14 +865,14 @@ const QueuedCast: FC<QueuedCastProps> = memo(
                         image: image.src,
                       });
 
-                      const ei = embeds.images.find(
-                        (o) =>
-                          o.version === 'v2' && o.localUriRef === image.src,
-                      );
+                      const imageUrl = getComposerImageUrlForRemoval({
+                        images: embeds.images,
+                        previewSrc: image.src,
+                      });
 
-                      if (typeof ei !== 'undefined') {
+                      if (typeof imageUrl !== 'undefined') {
                         removeImageEmbedByUrl({
-                          imageUrl: ei.url,
+                          imageUrl,
                           castLocalKey: localKey,
                         });
                       }

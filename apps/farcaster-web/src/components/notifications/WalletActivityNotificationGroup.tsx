@@ -111,7 +111,7 @@ const WalletActivityNotificationGroup: FC<WalletActivityNotificationGroupProps> 
                 isHighlighted={true}
                 hideFollowButton
               />
-              <div className="absolute bottom-0 right-[-3px] flex size-[20px] items-center justify-center rounded-full border-2 border-[#F5F4FF] bg-purple-200 dark:border-[#1F182C]">
+              <div className="absolute bottom-0 right-[-3px] flex size-[20px] items-center justify-center rounded-full border-2 border-[var(--notification-unread-light,#F5F4FF)] bg-purple-200 dark:border-[var(--notification-unread-dark,#1F182C)]">
                 <WalletIcon width={12} height={12} />
               </div>
             </div>

@@ -203,7 +203,7 @@ const AvatarFollowUser: FC<{
           className={cn(
             'absolute bottom-0 right-0 mb-[-4px] mr-[-4px] flex h-[20px] w-[20px] items-center justify-center rounded-full border-[2px] bg-[#E2D8F4] hover:bg-[#c1a9df]',
             isHighlighted
-              ? 'border-[#F5F4FF] dark:border-[#1F182C]'
+              ? 'border-[var(--notification-unread-light,#F5F4FF)] dark:border-[var(--notification-unread-dark,#1F182C)]'
               : 'border-app',
           )}
         >

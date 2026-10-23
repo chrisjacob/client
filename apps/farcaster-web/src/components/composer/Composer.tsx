@@ -31,7 +31,6 @@ import {
   useFetchOpenGraphMetadata,
   useOptimisticallyAddNewCastToThread,
   useProcessCastAttachments,
-  useSetCastAttachmentCache,
   useStoreDraftCaststorm,
   useTrackCastReaction,
 } from 'farcaster-client-hooks';
@@ -262,7 +261,6 @@ const ComposerInner = React.forwardRef<
       useOptimisticallyAddNewCastToThread('bottom');
     const processCastAttachments = useProcessCastAttachments();
     const trackCastReaction = useTrackCastReaction();
-    const setCastAttachmentCache = useSetCastAttachmentCache();
     const storeDraftCaststorm = useStoreDraftCaststorm();
     const navigateToConversation = useNavigateToConversation();
     const uploadOptimisticCloudflareImage =
@@ -516,6 +514,7 @@ const ComposerInner = React.forwardRef<
       setEmbedsFromDraftCast,
       setEmbedsFromAllDraftCasts,
       getEmbedsToSubmit,
+      getSubmittedPreviewEmbeds,
       hasPendingMediaUploads,
       uploadingStatuses,
     } = castComposerEmbedsReturn;
@@ -1051,6 +1050,9 @@ const ComposerInner = React.forwardRef<
               parentCastHash: castParentHash,
               embeds,
               channelKey,
+              clientProcessedEmbeds: getSubmittedPreviewEmbeds(
+                queuedCast.localKey,
+              ),
             });
 
             if (!firstData) {
@@ -1073,18 +1075,6 @@ const ComposerInner = React.forwardRef<
 
             const { hash } = data.result.cast;
             const authorFid = data.result.cast.author.fid;
-
-            // If we already queried the attachment instead of waiting for feed
-            // regen we will just cache the open graph preview on the client.
-            const castProcessedEmbeds = processedEmbeds[queuedCast.localKey];
-            if (castProcessedEmbeds) {
-              setCastAttachmentCache({
-                embeds: castProcessedEmbeds,
-                castText: data.result.cast.text,
-                fid: authorFid,
-                hash,
-              });
-            }
 
             postedCasts.push({
               hash,
@@ -1256,6 +1246,7 @@ const ComposerInner = React.forwardRef<
       focusedCastEmbedUrls,
       focusedCastText,
       getEmbedsToSubmit,
+      getSubmittedPreviewEmbeds,
       hasMultipleCasts,
       intent,
       isIntentFromSearchParams,
@@ -1271,7 +1262,6 @@ const ComposerInner = React.forwardRef<
       regularCastByteLimit,
       runAutoSaveDraft,
       scheduledAt,
-      setCastAttachmentCache,
       processCastAttachments,
       storeDraftCaststorm,
       getCurrentCaststorm,
