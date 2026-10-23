@@ -1,6 +1,37 @@
 RETURN TO THE WARPLETSAPI AGENT - POLICY RECONCILIATION / RELEASE ITEMS
 Review date: 21 October 2026 (Australia/Sydney)
 
+Owner decision update, 21 October 2026: retain Cloudflare Web Analytics.
+The earlier proposed disable policy has been superseded. Collection evidence
+and the replacement shared-policy wording are in
+docs/10X_SOCIAL_CLOUDFLARE_ANALYTICS_HANDOFF.txt. PostHog remains disabled in
+the revised white-label client. Historical checks below retain their dates.
+
+FINAL SHARED HANDOFF RECONCILED - 22 OCTOBER 2026
+
+The final supplied WarpletsAPI handoff, prepared on 21 October, is preserved
+verbatim in docs/10X_SOCIAL_FINAL_LEGAL_HANDOFF.txt. Read-only inspection of its current
+local privacy sections 11/16/27 confirms retained Cloudflare wording, the URL
+diagnostic caveat and the PostHog source/deployment distinction. Local terms
+section 61 and the shared renderer retain the intended Social integration.
+This is source reconciliation, not a fresh public-production verification.
+
+Social's privacy and support summaries now explicitly name retained Cloudflare
+Web Analytics alongside the inherited PostHog restriction. Terms and deletion
+summaries already match the handoff and need no additional policy copy.
+The four authoritative shared links, upstream links and 18+ statement remain.
+
+The final packet's release dependencies remain open: actual release traffic
+and authenticated feature/permission checks; account-specific analytics/logging,
+access, location and retention arrangements; monitored privacy/abuse channels;
+applicable legal/notice/choice review; coordinated policy/client publication
+and verification of published Markdown, dates and rendered Social anchors.
+These operational confirmations have not been marked complete by accepting the
+handoff. No deployment, permission change or external message was performed.
+The two targeted legal/override compilation tests and the branding audit passed
+after the summary edits (516 catalogue entries, 17 public and 7 source resources).
+The saved final handoff's SHA-256 matches the supplied attachment exactly.
+
 The reconciliation handoff was reviewed against the Social source, the existing
 local production artifact, public responses, and read-only Cloudflare Pages
 metadata. No deployment, account setting change, session revocation, wallet
@@ -68,7 +99,10 @@ The release checker now also requires:
   - No API override (runtime same-origin /~api), or the canonical site's explicit
     /~api URL. Tunnel, loopback, upstream/external and query-bearing overrides
     fail the 10X release check.
-  - No Cloudflare beacon script or data-cf-beacon script attribute in built HTML.
+
+The subsequent owner decision removed the Cloudflare-beacon rejection from the
+release checker and its test. Identity/API checks remain; the current checker
+permits the retained hosting analytics integration without adding a second copy.
 
 These are local release-script changes, not a hosting configuration change.
 They cannot prevent a hosting provider from injecting a beacon after upload.
@@ -76,7 +110,7 @@ They also do not turn a local environment check into evidence of remote traffic.
 Both deploy scripts already run this checker before/after building. Direct
 manual uploads must use the same checks. No deployment command was run here.
 
-Validation in this reconciliation:
+Validation in the preceding reconciliation, before the retained-analytics update:
   - 17 branding/release-policy tests passed.
   - 2 inherited PostHog SDK-boundary/lifecycle tests passed.
   - The strengthened checker passed against the existing local production build.
@@ -115,31 +149,33 @@ Missing fields must not be interpreted as disabled analytics or zero records.
 
 5. CLOUDFLARE BEACON DECISION / REQUIRED OWNER ACTION
 
-Selected local release policy: do not adopt optional Cloudflare browser
-analytics until ownership, collection and controls have been deliberately
-reviewed. Remove/disable the injected beacon as part of the authorized release
-configuration. This release policy has not been applied to the live service.
+Selected release policy, updated by the owner: KEEP Cloudflare Web Analytics
+enabled. The earlier proposal to remove it was a data-minimisation suggestion,
+not a technical requirement or an established legal requirement. No Cloudflare
+setting has been changed. The revised white-label PostHog restriction remains.
 
 The Web Analytics configuration read returned HTTP 403 with the existing OAuth
 credential. No attempt was made to change permissions or settings. Its account,
-resource association, actual collection, recipients, retention, locations and
-rules are therefore not verified. Do not infer these from the public token or
-from access to the Pages project.
+resource association, dashboard roles, retention/export arrangements and region
+rules are not verified. Public beacon configuration and the served script have
+since been inspected; see the new handoff for confirmed collection paths and
+the explicit limits of the isolated synthetic test. Do not infer account
+ownership or access roles from the public site token or Pages access.
 
 Cloudflare documents both automatic proxy injection and Pages integration:
   https://developers.cloudflare.com/web-analytics/get-started/
   https://developers.cloudflare.com/pages/how-to/web-analytics/
 
-An account owner with the required access must inspect the matching Web Analytics
-site and Pages integration, disable the applicable injection, and verify served
-HTML and browser requests after the authorized release. A beacon-free dist file
-alone is insufficient. No analytics-site deletion is proposed: retained data,
-access and retention need a separate, deliberate handling decision.
+An account owner should confirm the matching analytics resource, authorized
+dashboard users, geographic rules, exports and retention arrangements. Retain
+the existing integration and avoid duplicate manual injection. After an
+authorized deployment, verify one intended beacon and its requests on public
+and authenticated SPA routes. These account checks do not require disabling it.
 
-Policy instruction: keep the dated historical beacon finding. Do not state that
-the beacon has been removed until both the configuration and served traffic
-confirm removal. Then describe the chosen release prospectively, retaining the
-distinction from hosting/security logs and independent provider processing.
+Policy instruction: replace the historical-only beacon description with the
+intentional retained-analytics description in the new handoff. Keep the source
+versus deployed PostHog distinction and separate hosting/security logs and
+independent-provider processing. Do not claim all analytics are disabled.
 
 6. PERMISSIONS / EXTERNAL FEATURES - SOURCE FINDINGS AND LIMITS
 
@@ -178,12 +214,13 @@ end-to-end encryption, zero storage or guaranteed-deletion statement was added.
 Social technical release owner:
   Verify release variables and emitted API settings; capture redacted browser
   traffic before login and through both authenticated login/logout/revocation
-  flows. Verify no inherited PostHog init/capture/identify/flags requests and no
-  optional Cloudflare beacon after configuration is changed. Test external
+  flows. Verify no inherited PostHog init/capture/identify/flags requests and the
+  single intended Cloudflare integration. Review sensitive route/resource URLs
+  and element selectors in redacted RUM payloads. Test external
   wallets, Mini Apps, media/messages and permission boundaries with test accounts.
 
 Infrastructure/account owner:
-  Resolve beacon configuration with appropriate account access. Inventory actual
+  Confirm retained beacon configuration with appropriate account access. Inventory actual
   hosting/security/diagnostic logs and other persistent records, access roles,
   retention/deletion, recipients, processing countries, agreements and overseas
   safeguards. Confirm privacy@10x.meme is monitored and supported by privacy,

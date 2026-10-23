@@ -46,6 +46,19 @@ pnpm deploy:preview
 Use the resulting `*.pages.dev` preview for wallet and login testing before
 attaching the production domain.
 
+## Web Analytics decision
+
+The owner chose to retain Cloudflare Web Analytics on 21 October 2026. Preserve
+the existing integration; do not add a duplicate beacon to the application.
+The white-label release checker permits this integration. The inherited
+PostHog integration remains disabled in revised white-label builds.
+
+Collection findings, policy wording, and remaining account/traffic checks are in
+`docs/10X_SOCIAL_CLOUDFLARE_ANALYTICS_HANDOFF.txt`. Local build HTML alone cannot
+prove what Cloudflare injects into served pages. Verify the retained beacon and
+SPA requests after an authorized deployment. This decision does not authorize
+a deployment or change hosting/security log retention.
+
 ## Stable local tunnel
 
 The named `social-local` Cloudflare Tunnel exposes the development client at

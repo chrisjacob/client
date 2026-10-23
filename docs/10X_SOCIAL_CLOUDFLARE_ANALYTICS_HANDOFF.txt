@@ -1,0 +1,217 @@
+HANDOFF TO THE WARPLETSAPI AGENT - RETAINED CLOUDFLARE WEB ANALYTICS
+Review and owner decision: 21 October 2026 (Australia/Sydney)
+
+Reconciliation received: the final WarpletsAPI response is preserved in
+docs/10X_SOCIAL_FINAL_LEGAL_HANDOFF.txt. Its local privacy sections 11, 16 and
+27 incorporate the retained-analytics wording below. Section 4 is the supplied
+change request's historical record, not a request to repeat those edits.
+Social's privacy/support summaries now explicitly mention retained Cloudflare.
+Publication and the account/traffic confirmations in section 5 remain pending.
+
+1. DECISION AND APP CONTEXT
+
+The owner explicitly instructed: keep Cloudflare analytics enabled. This
+supersedes the FC Client agent's earlier recommendation to disable the beacon.
+That recommendation was not a technical or established legal requirement.
+No Cloudflare account setting was changed, and nothing was deployed here.
+
+10X.Social is a branded Farcaster web client operated by Code Hunt Pty. Ltd.
+It uses upstream application services for accounts/social actions and protocol
+infrastructure for supported public data. Its default /~api relay runs through
+Cloudflare; upstream websockets and external features can take separate routes.
+The shared policies belong in WarpletsAPI at app/public/legal/privacy.md and
+terms.md. Social has short summary pages linking to the full documents and
+their #10x-social anchors; it does not maintain a duplicate full policy.
+
+Keep the revised white-label client's inherited PostHog integration disabled.
+Cloudflare Web Analytics is a separate, intentionally retained integration.
+The PostHog change remains undeployed by this work, so retain the existing
+source/deployment/history distinctions. Do not say "all analytics disabled".
+
+2. WHAT WAS VERIFIED, AND HOW
+
+Public GETs on 21 October returned HTTP 200 and one Cloudflare beacon each:
+  https://10x.social/
+  https://10x.social/~/privacy-policy
+  https://10x.social/~/terms-of-use
+  https://10x.social/10xmeme.eth
+The four HTML responses still have the upstream Farcaster title. The revised
+white-label build is not the production artifact observed in these responses.
+The landing-page DOM also exposes the same beacon configuration.
+
+Served script:
+  https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092
+  SHA-256: 637381256384554e1cc3309a62fb238a51b83e7f10b2a56d8ba15dbc73ca762e
+  Script's reported JS version: 2026.10.1
+  HTML config: version=2024.11.0, r=1, spa=2, one public site token.
+The public token identifies an analytics site; it is not an account credential.
+No custom send/forward or serverTiming option appears in that HTML config.
+Other runtime overrides and account configuration were not established.
+
+The fetched script matches the served HTML's integrity hash. It was read and
+exercised in an isolated Node VM with synthetic
+browser APIs. No real user data or network requests were sent by that harness.
+Its initial-load and hidden-page payloads reproduce the fields below. This is
+source/collector verification, NOT a browser packet capture or confirmation of
+Cloudflare's server-side acceptance, storage, dashboard visibility or all flows.
+Actual authenticated login, wallet, messaging and Mini App RUM traffic remains
+to be checked with a test account after the authorized release.
+
+3. COLLECTION FINDINGS
+
+The served collector constructs these categories, where supported:
+  - Current page and referrer origin/path, navigation type, event type, timestamp,
+    script versions and the site's public identifier. SPA mode is enabled and
+    the script observes supported navigation/history APIs.
+  - A random pageloadId, regenerated for supported route changes. It is not the
+    client's persistent device ID or a Farcaster FID, but it is an identifier.
+  - DNS/connection/TLS/request/response/DOM/load/paint measurements, protocol,
+    transfer/body sizes and available JavaScript heap statistics.
+  - Core Web Vitals: FCP, LCP, CLS, TTFB and INP. Diagnostics can include CSS
+    selectors, layout rectangles, interaction type, LCP resource URL/size and
+    timing breakdowns. The selector generator uses element IDs/classes.
+  - Browser/engine versions derived from user-agent information; supported
+    browsers may provide an OS platform version through client hints.
+
+Cloudflare also documents dashboard dimensions such as country, device class,
+browser and OS. These are provider-documented capabilities; this review did not
+inspect this account's dashboard records or verify every dimension's values.
+Source: https://developers.cloudflare.com/web-analytics/data-metrics/dimensions/
+
+URL distinction: the current collector removes credentials, query strings and
+fragments from its page-location and referrer fields. However, its LCP resource
+URL bypasses that cleanup. A synthetic LCP URL containing ?review=synthetic and
+#fragment survived unchanged in the constructed payload. This establishes a
+collector path, not that any real secret was transmitted. Do not promise that
+all URLs are query-free or that identifiers can never appear in diagnostics.
+Paths may themselves identify profiles/casts. Keep credentials/private text
+out of resource URLs and DOM IDs/classes; inspect actual authenticated payloads.
+
+With the observed config, the code targets same-origin POST /cdn-cgi/rum (an
+empty trailing query is possible). Initial-load data uses XHR; hidden-page
+vitals use sendBeacon where available, with fallback support. This endpoint is
+independent of the Farcaster /~api relay. No blanket API-body, message-text,
+form-value, session replay or FID collection was found in this collector's
+payload construction. That finding is limited to this script and does not
+exclude information embedded in URLs/selectors or other providers' processing.
+
+No cookie/localStorage/sessionStorage/IndexedDB API access was found in the
+served script; the exercised paths also passed with storage access prohibited.
+This does not mean a same-origin HTTP request cannot carry existing cookies
+automatically, or that the rest of Social uses no persistent storage.
+
+Cloudflare states its RUM beacon does not use browser storage and does not
+fingerprint users. It says source IP addresses necessarily arrive with HTTP
+requests but are discarded at the receiving edge for RUM, rather than stored
+in RUM's core databases/logs. Processing can occur outside the visitor's country.
+Do not extend those product-specific statements to CDN/security/API logs.
+Sources:
+  https://developers.cloudflare.com/speed/observatory/rum-beacon/
+  https://developers.cloudflare.com/web-analytics/data-metrics/core-web-vitals/
+
+Cloudflare's FAQ says query strings are not logged for Web Analytics. Distinguish
+that provider statement about logging from the client LCP URL path above; it
+does not prove every outbound field is redacted. The FAQ describes seven days
+of unsampled data, longer-term aggregation/sampling and six months of accessible
+analytics. Six-month dashboard access is NOT proof of deletion of every record
+or backup. Account exports, retention controls and other logs were not verified.
+Source: https://developers.cloudflare.com/web-analytics/faq/
+
+4. CHANGES TO THE SHARED PRIVACY POLICY
+
+The local revised privacy.md was read without editing WarpletsAPI. Apply these
+focused updates while preserving the PostHog history and other provider details.
+
+A. In "Client Hosting, Analytics, Mini Apps & Media", replace the historical-only
+beacon wording with: "10X.Social retains Cloudflare Web Analytics to measure
+visits and technical performance. This operates separately from inherited
+PostHog, which is disabled in the revised white-label client. See 10X.Social
+for the collection details and version differences."
+
+B. In the general browser-storage/analytics section, explicitly distinguish
+retained Cloudflare Web Analytics from the disabled inherited PostHog wrapper.
+Do not classify every analytics integration as future-only or disabled. Keep
+the separate Google Analytics description for other 10X pages. The exclusion
+of Google Analytics from direct shared-policy visits is not an exclusion of
+Cloudflare from Social's own legal-summary routes: those carry the beacon.
+
+C. Under "Browser Storage, Analytics & Version Differences" in #10x-social,
+replace the paragraph beginning "Separate Cloudflare beacon" with the following
+suggested public wording, reconciling terminology with the rest of the policy:
+
+"Cloudflare Web Analytics. We keep Cloudflare Web Analytics enabled on
+10X.Social to understand visits, navigation and technical performance. It can
+process page paths and referrers, browser/device information and country-level
+statistics, together with loading and responsiveness measurements. Diagnostics
+may include a random page-load identifier, timing and size measurements, element
+selectors, layout information and resource URLs. The current script strips
+query strings and fragments from page and referrer fields; performance-resource
+URLs may be handled differently. URLs and selectors can themselves contain
+identifiers.
+
+Cloudflare states that its Web Analytics beacon does not use analytics cookies
+or browser storage and does not fingerprint visitors. Its RUM service receives
+IP addresses as part of network requests and says it discards them at its edge
+instead of retaining them in RUM's core databases or logs. These statements
+concern Web Analytics; separate hosting, security and upstream-service
+processing described in this Policy still applies. Processing may occur outside
+your country.
+
+Cloudflare Web Analytics remains enabled independently of the revised client's
+PostHog restriction. It can operate before login and on Social's legal-summary
+pages. This Policy does not provide an in-app analytics opt-out. Clearing
+browser storage does not by itself stop future beacon requests or erase
+information already received. See Cloudflare's Web Analytics documentation and
+contact privacy@10x.meme with questions or applicable rights requests."
+
+Link "Web Analytics documentation" to the RUM and collection documents above.
+Keep the following existing paragraph about applicable notices/choices and the
+limits of policy publication. Do not invent a consent switch, global consent
+exemption, exact deletion deadline, EU exclusion or Australia-only processing.
+No UI/consent change was implemented in this task. The owner/policy reviewer
+should resolve any jurisdiction-specific notice/choice requirements against
+the actual configuration, without treating this technical review as a ruling.
+
+D. Terms: the reviewed local terms already link to the Privacy Policy and its
+Social section; no contradictory analytics promise was found. I recommend
+keeping the technical collection detail in the Privacy Policy. Check any newer
+terms edits for contradictory "no analytics" or future-only claims. Preserve
+#10x-social, the cross-links, version history and publication dates.
+
+5. IMPLEMENTATION AND REMAINING CONFIRMATIONS
+
+The FC Client release checker no longer rejects Cloudflare beacons. It still
+requires white-label identity, the branding audit and the approved same-origin
+API configuration. No manual beacon was added, no PostHog restriction removed,
+and no Cloudflare setting was changed. Hosting injection is deliberately kept.
+
+The previous Web Analytics API read returned 403 using the existing Wrangler
+OAuth login. Dashboard resource association/access roles, geographical rules,
+exports and actual retention arrangements still need account-owner confirmation.
+Do not infer EU exclusion from Cloudflare's defaults or infer corporate
+ownership from access to the Pages project. Those gaps do not reverse the
+owner's instruction to retain analytics.
+
+Before/after the separately authorized release, capture redacted browser RUM
+requests on public and authenticated SPA navigation and check server responses;
+review profile/cast paths, sensitive resource URLs, selectors, any runtime
+forwarding and server-timing options. Verify that intended Cloudflare collection
+is present once and inherited PostHog SDK traffic is absent in the revised build.
+No production deployment is authorized by this handoff.
+
+Published shared Markdown was rechecked on 21 October: privacy is dated 21 August
+2026 and terms 22 August 2026; neither contains #10x-social. The revised local
+October policies are not yet published at those URLs. Coordinate publication,
+then verify /legal/privacy.md, /legal/terms.md and the rendered anchor links.
+
+Ignored local evidence: tmp/cloudflare-analytics-review/ contains the four served
+HTML responses, original and formatted beacon source, isolated harness and
+synthetic-payloads.json, and current published shared Markdown. No account
+credential or authenticated user data was included. WarpletsAPI was read only;
+this packet is for the user to pass to its agent, not a message sent by us.
+
+Validation: 16 branding/release tests and 2 PostHog regression tests passed.
+The current release checker passed against the existing production artifact.
+The isolated collector checks passed, including page/referrer cleanup and the
+LCP resource URL caveat. No full application rebuild was needed: this task
+changed release checks and documentation, not the application bundle.

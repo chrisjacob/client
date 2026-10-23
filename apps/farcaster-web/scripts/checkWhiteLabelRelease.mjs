@@ -10,10 +10,7 @@ import {
   flagEnabled,
   loadBranding,
 } from './whitelabel/core.mjs';
-import {
-  assertNoOptionalBrowserAnalytics,
-  releaseApiConfiguration,
-} from './whitelabel/releasePolicy.mjs';
+import { releaseApiConfiguration } from './whitelabel/releasePolicy.mjs';
 
 const environment = loadEnv('production', appRoot, '');
 assert.ok(
@@ -32,7 +29,6 @@ if (process.argv.includes('--artifact')) {
     readFileSync(path.join(appRoot, 'dist/manifest.json'), 'utf8'),
   );
   const html = readFileSync(path.join(appRoot, 'dist/index.html'), 'utf8');
-  assertNoOptionalBrowserAnalytics(html);
   assert.equal(
     manifest.name,
     branding.config.appName,

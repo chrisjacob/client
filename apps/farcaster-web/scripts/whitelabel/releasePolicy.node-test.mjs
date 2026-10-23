@@ -1,10 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-  assertNoOptionalBrowserAnalytics,
-  releaseApiConfiguration,
-} from './releasePolicy.mjs';
+import { releaseApiConfiguration } from './releasePolicy.mjs';
 
 const brand = { siteUrl: 'https://10x.social' };
 
@@ -43,23 +40,5 @@ test('release rejects a tunnel, loopback or upstream API override and a wrong ca
         brand,
       ),
     /canonical/,
-  );
-});
-
-test('release rejects an embedded beacon but does not mistake policy text for a script', () => {
-  assertNoOptionalBrowserAnalytics(
-    '<html><p>Earlier builds loaded https://static.cloudflareinsights.com/beacon.min.js.</p></html>',
-  );
-  assert.throws(
-    () =>
-      assertNoOptionalBrowserAnalytics(
-        '<script src="https://static.cloudflareinsights.com/beacon.min.js"></script>',
-      ),
-    /beacon/,
-  );
-  assert.throws(
-    () =>
-      assertNoOptionalBrowserAnalytics('<script data-cf-beacon="{}"></script>'),
-    /beacon/,
   );
 });

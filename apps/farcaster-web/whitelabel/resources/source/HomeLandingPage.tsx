@@ -147,8 +147,7 @@ export function HomeLandingPage() {
               You're Just One Trade Away...
             </h1>
             <p className="mt-6 text-base leading-relaxed text-white/80">
-              10X is where Builders, Traders and Attention align. It's the
-              crypto social network you've been looking for.
+              The crypto social network you've been looking for.
             </p>
 
             <div className="mt-9 flex flex-col gap-3">

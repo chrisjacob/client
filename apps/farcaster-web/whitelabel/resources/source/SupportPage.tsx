@@ -38,9 +38,10 @@ const SupportPage: React.FC = React.memo(() => {
           Using 10X.Social can involve processing information in your browser,
           through our infrastructure, and by upstream providers. The client uses
           browser storage for sessions and preferences. The inherited PostHog
-          analytics integration is disabled in this white-label client. Read the
-          Privacy Policy for information about data handling and privacy
-          requests.
+          analytics integration is disabled in this white-label client.
+          Cloudflare Web Analytics remains enabled to measure visits and
+          technical performance, including before login. Read the Privacy Policy
+          for information about data handling and privacy requests.
         </Para>
         <H2>
           Is my data shared with or sold to 3rd parties for advertising or

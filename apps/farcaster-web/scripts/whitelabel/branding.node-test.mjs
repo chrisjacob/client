@@ -231,6 +231,60 @@ test('dev middleware and production overlay serve the same resources without mod
   }
 });
 
+test('saving a replacement page updates its loaded module without restarting the tunnel origin', () => {
+  const plugin = whiteLabelPlugin({ VITE_10X_FEATURE_WHITELABEL: 'true' });
+  let onChange;
+  let restarts = 0;
+  plugin.configureServer({
+    watcher: {
+      add() {},
+      on(event, callback) {
+        onChange = callback;
+      },
+    },
+    middlewares: { use() {} },
+    restart() {
+      restarts++;
+    },
+  });
+  const replacement = path.join(
+    brandRoot,
+    'resources/source/HomeLandingPage.tsx',
+  );
+  const target = path
+    .join(appRoot, 'src/pages/homeLanding/HomeLandingPage.tsx')
+    .replaceAll('\\', '/');
+  const loadedPage = { id: target };
+  const dependency = { id: 'dependency' };
+  const context = {
+    file: replacement,
+    modules: [dependency, loadedPage],
+    server: {
+      moduleGraph: {
+        getModuleById(id) {
+          return id === target ? loadedPage : undefined;
+        },
+      },
+    },
+  };
+  onChange(replacement);
+  assert.equal(restarts, 0);
+  assert.deepEqual(plugin.handleHotUpdate(context), [dependency, loadedPage]);
+  assert.deepEqual(plugin.handleHotUpdate({ ...context, modules: [] }), [
+    loadedPage,
+  ]);
+  assert.equal(
+    plugin.handleHotUpdate({
+      ...context,
+      file: path.join(appRoot, 'src/index.tsx'),
+    }),
+    undefined,
+  );
+  onChange(path.join(brandRoot, 'brand.json'));
+  assert.equal(restarts, 1);
+  assert.equal(whiteLabelPlugin({}).handleHotUpdate(context), undefined);
+});
+
 test('audit detects new, removed, repeated, and changed upstream references without rewriting owner content', () => {
   const current = inventory();
   assert.deepEqual(auditBranding(branding, current), []);

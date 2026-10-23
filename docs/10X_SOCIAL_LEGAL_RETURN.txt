@@ -1,6 +1,11 @@
 RETURN TO THE WARPLETSAPI AGENT — SOCIAL LEGAL INTEGRATION / READINESS
 Review date: 21 October 2026
 
+Subsequent owner decision: Cloudflare Web Analytics is intentionally retained.
+Use docs/10X_SOCIAL_CLOUDFLARE_ANALYTICS_HANDOFF.txt for the collection review
+and current shared-policy instructions. The observations below are historical;
+the revised white-label client still disables inherited PostHog.
+
 The supplied legal handoff has been applied to the FC Client working tree.
 Nothing in this work has been deployed. Changes to WarpletsAPI's authoritative
 documents remain the responsibility of that project. Existing unrelated local

@@ -20,7 +20,9 @@ const PrivacyPolicyPage: React.FC = React.memo(() => {
           through our infrastructure, and by upstream providers. The client uses
           browser storage for sessions and preferences. The inherited PostHog
           analytics integration is disabled in this white-label client.
-          Independent providers may process usage information under their own
+          Cloudflare Web Analytics remains enabled to measure visits and
+          technical performance, including before login and on this page.
+          Independent providers may process information under their own
           policies. Public social posts, private account information, and
           blockchain records have different visibility and handling. Removing
           information from one service does not guarantee its removal from

@@ -40,13 +40,3 @@ export function releaseApiConfiguration(environment, brand) {
     apiPath: '/~api',
   };
 }
-
-export function assertNoOptionalBrowserAnalytics(html) {
-  const scripts = html.match(/<script\b[^>]*>/gi) || [];
-  assert.ok(
-    !scripts.some((tag) =>
-      /static\.cloudflareinsights\.com\/beacon|data-cf-beacon\s*=/i.test(tag),
-    ),
-    'Built HTML contains a Cloudflare analytics beacon; the reviewed release does not adopt optional browser analytics',
-  );
-}

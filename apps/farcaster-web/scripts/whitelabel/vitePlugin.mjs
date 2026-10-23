@@ -53,6 +53,12 @@ export function whiteLabelPlugin(environment) {
       resource,
     ]),
   );
+  const sourceTargetsByReplacement = new Map(
+    branding?.resources.source.map((resource) => [
+      path.resolve(brandRoot, resource.replacement),
+      slash(path.join(appRoot, resource.target)),
+    ]),
+  );
   return {
     name: '10x-whitelabel',
     enforce: 'pre',
@@ -79,7 +85,11 @@ export function whiteLabelPlugin(environment) {
       if (!branding) return;
       server.watcher.add(brandRoot);
       server.watcher.on('change', (file) => {
-        if (path.resolve(file).startsWith(`${brandRoot}${path.sep}`))
+        const resolved = path.resolve(file);
+        // Replacement modules participate in HMR below. Restarting here closes
+        // the origin port and produces Bad Gateway responses through the tunnel.
+        if (sourceTargetsByReplacement.has(resolved)) return;
+        if (resolved.startsWith(`${brandRoot}${path.sep}`))
           void server.restart();
       });
       server.middlewares.use((request, response, next) => {
@@ -103,6 +113,13 @@ export function whiteLabelPlugin(environment) {
         response.setHeader('Cache-Control', 'no-store');
         response.end(resourceBytes(resource, branding));
       });
+    },
+    handleHotUpdate({ file, server, modules }) {
+      const target = sourceTargetsByReplacement.get(path.resolve(file));
+      if (!target) return;
+      // The replacement file is loaded under its upstream module identity.
+      const module = server.moduleGraph.getModuleById(target);
+      return module ? [...new Set([...modules, module])] : modules;
     },
     load(id) {
       if (!branding) return null;

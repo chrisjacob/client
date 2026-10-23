@@ -5,6 +5,11 @@ names, legal text, images, and video so you can see what you are replacing.
 Editing this directory does not modify the upstream originals. No deployment
 has been performed.
 
+Saving a mapped page/component under `resources/source/` uses Vite hot reload
+without closing the local tunnel's origin port. Branding configuration and other
+resource changes still restart Vite and can briefly return Bad Gateway while it
+restarts; reload the page after the server is ready.
+
 ## Start tomorrow
 
 1. Edit `brand.json`. Change `appName` and `shortName` to `10X`, set your company
@@ -82,10 +87,14 @@ manual hosting uploads must apply the same checks. The build step alone does not
 deploy and still supports both branding variants for CI.
 The release check also requires the canonical origin from `brand.json`, accepts
 only an unset API override (the runtime same-origin `/~api` relay) or that site's
-explicit `/~api` URL, and rejects a Cloudflare beacon in the built HTML. This
-cannot detect a beacon injected later by Cloudflare. The recommended next-release
-policy is to leave optional browser analytics disabled; verify the hosting and
-Web Analytics settings and the served HTML before publication is signed off.
+explicit `/~api` URL. Cloudflare Web Analytics is intentionally retained by the
+owner's decision on 21 October 2026; the release checker permits its beacon.
+Keep the existing hosting integration rather than adding a second script to the
+client. Verify served pages and requests after an authorized deployment, including
+SPA navigation. The inherited PostHog wrapper remains disabled in white-label
+mode; this does not disable Cloudflare or other providers. Collection findings,
+URL/resource caveats and the shared-policy wording are recorded in
+`docs/10X_SOCIAL_CLOUDFLARE_ANALYTICS_HANDOFF.txt`.
 Production settings, retained records, permissions and notices still require the
 operational checks in `docs/10X_SOCIAL_POLICY_RECONCILIATION_RETURN.txt`.
 Canonical page metadata on the exact `farcaster.xyz` / `warpcast.com` origins is
